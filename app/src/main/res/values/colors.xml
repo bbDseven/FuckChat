@@ -4,7 +4,9 @@
     <color name="colorPrimaryDark">#303F9F</color>
     <color name="colorAccent">#FF4081</color>
     <color name="colorWhite">#FFFFFF</color>
+    <color name="colorBack">#000000</color>
     <color name="colorTitle">#393A3F</color>
     <color name="colorDivide">#B6B6B6</color>
     <color name="colorGreen">#45c01A</color>
+    <color name="colorFriendsName">#0FF</color>
 </resources>

@@ -7,6 +7,7 @@
     android:orientation="vertical"
     tools:context="com.threeman.fuckchat.activity.MainActivity">
 
+    <!-- 顶部布局layout -->
     <com.threeman.fuckchat.view.TitleView
         android:id="@+id/tv_title"
         android:layout_width="match_parent"
@@ -18,29 +19,14 @@
         android:layout_height="match_parent"
         android:layout_weight="1"/>
 
-    <LinearLayout
+    <!-- 横线 -->
+    <View
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
+        android:layout_height="1dp"
+        android:layout_marginTop="1dp"
+        android:background="#bebebe"/>
 
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="聊天"/>
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="通讯录"/>
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="朋友圈"/>
-
-    </LinearLayout>
+    <!-- 底部3个菜单 -->
+    <include layout="@layout/bottom_layout_main" />
 
 </LinearLayout>

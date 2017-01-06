@@ -5,8 +5,11 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.threeman.fuckchat.R;
 import com.threeman.fuckchat.base.BaseActivity;
@@ -29,9 +32,11 @@ import java.util.List;
 */
 public class MyFriendsActivity extends BaseActivity implements TitleView.OnAddClickListener {
 
+    private final static int TYPE_TOP=0;  //图片布局
+    private final static int TYPE_ITEM=1;  //朋友圈信息
     private TitleView tv_myFriend;
     private RecyclerView rv_myFriend;
-    private List list;
+    private List<String> list;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,9 +64,9 @@ public class MyFriendsActivity extends BaseActivity implements TitleView.OnAddCl
         for (int i=0;i<20;i++){
             list.add("陈贵堂"+i);
         }
-       // MyAdapter adapter=new MyAdapter();
-//        rv_myFriend.setLayoutManager(new LinearLayoutManager(this));
-        //rv_myFriend.setAdapter(adapter);
+        MyAdapter adapter=new MyAdapter();
+        rv_myFriend.setLayoutManager(new LinearLayoutManager(this));
+        rv_myFriend.setAdapter(adapter);
     }
 
     @Override
@@ -74,12 +79,34 @@ public class MyFriendsActivity extends BaseActivity implements TitleView.OnAddCl
 
         @Override
         public MyAdapter.MyViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-            return null;
+            View view;
+            if (viewType==TYPE_TOP){
+                view = LayoutInflater.from(MyFriendsActivity.this).inflate
+                        (R.layout.item_friends_picture, parent, false);
+            }else {
+                 view = LayoutInflater.from(MyFriendsActivity.this).inflate
+                        (R.layout.item_my_friends, parent, false);
+            }
+            return new MyViewHolder(view);
         }
 
         @Override
         public void onBindViewHolder(MyAdapter.MyViewHolder holder, int position) {
+            if (getItemViewType(position)==TYPE_ITEM){
+                holder.item_myFriend_day.setText("24");
+                holder.item_myFriend_month.setText("10月");
+                holder.item_myFriend_content.setText(list.get(position));
+            }
+        }
 
+        @Override
+        public int getItemViewType(int position) {
+            if (position==TYPE_TOP){
+                return TYPE_TOP;
+            }else {
+                return TYPE_ITEM;
+            }
+//            return super.getItemViewType(position);
         }
 
         @Override
@@ -88,8 +115,14 @@ public class MyFriendsActivity extends BaseActivity implements TitleView.OnAddCl
         }
 
         public class MyViewHolder extends RecyclerView.ViewHolder {
+            TextView item_myFriend_day;
+            TextView item_myFriend_month;
+            TextView item_myFriend_content;
             public MyViewHolder(View itemView) {
                 super(itemView);
+                item_myFriend_day= (TextView) itemView.findViewById(R.id.item_myFriend_day);
+                item_myFriend_month= (TextView) itemView.findViewById(R.id.item_myFriend_month);
+                item_myFriend_content= (TextView) itemView.findViewById(R.id.item_myFriend_content);
             }
         }
     }

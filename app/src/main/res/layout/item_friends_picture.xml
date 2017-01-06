@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+xmlns:android="http://schemas.android.com/apk/res/android"
+android:id="@+id/ll_myFriend_image"
+android:layout_below="@+id/tv_myFriend"
+android:layout_width="match_parent"
+android:layout_height="280dp">
+
+<ImageView
+    android:id="@+id/iv_myFriend_bg"
+    android:layout_width="match_parent"
+    android:background="@mipmap/user_ba"
+    android:layout_height="250dp" />
+
+<ImageButton
+    android:id="@+id/ib_myFriend_head"
+    android:layout_width="80dp"
+    android:layout_height="80dp"
+    android:layout_alignParentRight="true"
+    android:layout_alignParentBottom="true"
+    android:layout_marginRight="10dp"
+    android:background="@mipmap/icon_contacts_head"/>
+
+
+</RelativeLayout>
