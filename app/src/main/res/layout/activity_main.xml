@@ -7,21 +7,8 @@
     android:orientation="vertical"
     tools:context="com.threeman.fuckchat.activity.MainActivity">
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="约会神器"/>
-
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="+"/>
-    </LinearLayout>
+    <!-- 顶部布局layout -->
+    <include layout="@layout/top_layout_main" />
 
     <android.support.v4.view.ViewPager
         android:id="@+id/viewPager"
@@ -29,29 +16,14 @@
         android:layout_height="match_parent"
         android:layout_weight="1"/>
 
-    <LinearLayout
+    <!-- 横线 -->
+    <View
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
+        android:layout_height="1dp"
+        android:layout_marginTop="1dp"
+        android:background="#bebebe"/>
 
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="聊天"/>
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="通讯录"/>
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="朋友圈"/>
-
-    </LinearLayout>
+    <!-- 底部3个菜单 -->
+    <include layout="@layout/bottom_layout_main" />
 
 </LinearLayout>
