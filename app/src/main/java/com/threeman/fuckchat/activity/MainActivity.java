@@ -1,34 +1,40 @@
 package com.threeman.fuckchat.activity;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentActivity;
 import android.support.v4.view.ViewPager;
 
 import com.threeman.fuckchat.R;
 import com.threeman.fuckchat.adapter.FragmentAdapter;
+import com.threeman.fuckchat.base.BaseActivity;
 import com.threeman.fuckchat.fragment.AddressListFragment;
 import com.threeman.fuckchat.fragment.ChatFragment;
 import com.threeman.fuckchat.fragment.FriendsCircleFragment;
+import com.threeman.fuckchat.util.UIUtil;
+import com.threeman.fuckchat.view.TitleView;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class MainActivity extends FragmentActivity {
+public class MainActivity extends BaseActivity implements TitleView.OnAddClickListener {
 
     private ViewHolder viewHolder;
 
     public class ViewHolder{
+
         private ViewPager viewPager;
         private List<Fragment> fragments;//fragments集合
         private FragmentAdapter fragmentAdapter;//fragments适配器
+        private TitleView tv_title;
     }
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         initView();
+        initEvent();
+        initDate();
         initFragmentViewPager();
 
     }
@@ -39,7 +45,26 @@ public class MainActivity extends FragmentActivity {
     public void initView(){
         viewHolder = new ViewHolder();
         viewHolder.viewPager = (ViewPager) findViewById(R.id.viewPager);
-        viewHolder.fragments = new ArrayList<Fragment>();
+        viewHolder.tv_title=findViewByIds(R.id.tv_title);
+        viewHolder.fragments = new ArrayList<>();
+    }
+
+    private void initEvent() {
+        viewHolder.tv_title.setAddClickListener(this);
+    }
+    private void initDate() {
+        viewHolder.tv_title.setTitleName("约会神器");
+    }
+
+
+
+    /**
+     * 点击头部+按钮执行该方法
+     */
+    @Override
+    public void add() {
+        UIUtil.toastShort(this,"点击了添加按钮");
+        startActivity(new Intent(this,MyFriendsActivity.class));
     }
 
     /**

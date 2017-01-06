@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--头部titleBar布局-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:orientation="horizontal"
+    android:background="@color/colorTitle"
+    android:layout_height="@dimen/title_height">
+
+    <TextView
+        android:id="@+id/title_name"
+        android:layout_weight="1"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:textColor="@color/colorWhite"
+        android:textSize="21sp"
+        android:padding="10dp"
+        android:gravity="center_vertical"
+        android:text="约会神器"/>
+
+    <ImageView
+        android:id="@+id/title_add_contacts"
+        android:layout_width="wrap_content"
+        android:layout_gravity="right"
+        android:gravity="center"
+        android:clickable="true"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp"
+        android:src="@mipmap/icon_add_contacts"
+        android:layout_height="match_parent"
+      />
+
+</LinearLayout>

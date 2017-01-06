@@ -7,21 +7,10 @@
     android:orientation="vertical"
     tools:context="com.threeman.fuckchat.activity.MainActivity">
 
-    <LinearLayout
+    <com.threeman.fuckchat.view.TitleView
+        android:id="@+id/tv_title"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="约会神器"/>
-
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="+"/>
-    </LinearLayout>
+        android:layout_height="wrap_content"/>
 
     <android.support.v4.view.ViewPager
         android:id="@+id/viewPager"
