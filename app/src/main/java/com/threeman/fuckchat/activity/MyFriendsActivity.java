@@ -8,6 +8,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -75,27 +76,38 @@ public class MyFriendsActivity extends BaseActivity implements TitleView.OnAddCl
         startActivity(new Intent(this,AddFriendsActivity.class));
     }
 
-    class MyAdapter extends RecyclerView.Adapter<MyAdapter.MyViewHolder>{
+    class MyAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
 
         @Override
-        public MyAdapter.MyViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
             View view;
             if (viewType==TYPE_TOP){
                 view = LayoutInflater.from(MyFriendsActivity.this).inflate
                         (R.layout.item_friends_picture, parent, false);
+                return new MyViewHolderOne(view);
+
             }else {
                  view = LayoutInflater.from(MyFriendsActivity.this).inflate
                         (R.layout.item_my_friends, parent, false);
+                return new MyViewHolderTwo(view);
             }
-            return new MyViewHolder(view);
         }
 
         @Override
-        public void onBindViewHolder(MyAdapter.MyViewHolder holder, int position) {
+        public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
             if (getItemViewType(position)==TYPE_ITEM){
-                holder.item_myFriend_day.setText("24");
-                holder.item_myFriend_month.setText("10月");
-                holder.item_myFriend_content.setText(list.get(position));
+                MyViewHolderTwo holderTwo = (MyViewHolderTwo) holder;
+                holderTwo.item_myFriend_day.setText("24");
+                holderTwo.item_myFriend_month.setText("10月");
+                holderTwo.item_myFriend_content.setText(list.get(position));
+            }else if (getItemViewType(position)==TYPE_TOP){
+                MyViewHolderOne holderOne = (MyViewHolderOne) holder;
+                holderOne.ib_myFriend_head.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        UIUtil.toastShort(MyFriendsActivity.this,"信息个人详细信息");
+                    }
+                });
             }
         }
 
@@ -106,7 +118,6 @@ public class MyFriendsActivity extends BaseActivity implements TitleView.OnAddCl
             }else {
                 return TYPE_ITEM;
             }
-//            return super.getItemViewType(position);
         }
 
         @Override
@@ -114,11 +125,19 @@ public class MyFriendsActivity extends BaseActivity implements TitleView.OnAddCl
             return list.size();
         }
 
-        public class MyViewHolder extends RecyclerView.ViewHolder {
+        public class MyViewHolderOne extends RecyclerView.ViewHolder {
+            ImageButton ib_myFriend_head;
+            public MyViewHolderOne(View itemView) {
+                super(itemView);
+                ib_myFriend_head= (ImageButton) itemView.findViewById(R.id.ib_myFriend_head);
+            }
+        }
+
+        public class MyViewHolderTwo extends RecyclerView.ViewHolder {
             TextView item_myFriend_day;
             TextView item_myFriend_month;
             TextView item_myFriend_content;
-            public MyViewHolder(View itemView) {
+            public MyViewHolderTwo(View itemView) {
                 super(itemView);
                 item_myFriend_day= (TextView) itemView.findViewById(R.id.item_myFriend_day);
                 item_myFriend_month= (TextView) itemView.findViewById(R.id.item_myFriend_month);

@@ -9,11 +9,13 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.threeman.fuckchat.R;
 import com.threeman.fuckchat.activity.AddFriendsActivity;
+import com.threeman.fuckchat.activity.MyFriendsActivity;
 import com.threeman.fuckchat.util.UIUtil;
 import com.threeman.fuckchat.view.TitleView;
 
@@ -69,25 +71,35 @@ public class FriendsCircleFragment extends Fragment implements TitleView.OnAddCl
     }
 
 
-    class MyAdapter extends RecyclerView.Adapter<MyAdapter.MyViewHolder>{
+    class MyAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
 
         @Override
-        public MyAdapter.MyViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
             View view;
             if (viewType==TYPE_TOP){
                 view = LayoutInflater.from(getContext()).inflate
                         (R.layout.item_friends_picture, parent, false);
+                return new MyViewHolderOne(view);
             }else {
                 view = LayoutInflater.from(getContext()).inflate
                         (R.layout.item_friends, parent, false);
+                return new MyViewHolderTwo(view);
             }
-            return new MyViewHolder(view);
         }
 
         @Override
-        public void onBindViewHolder(MyAdapter.MyViewHolder holder, int position) {
+        public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
             if (getItemViewType(position)==TYPE_ITEM){
-                holder.item_friends_name.setText(list.get(position));
+                MyViewHolderTwo holderTwo = (MyViewHolderTwo) holder;
+                holderTwo.item_friends_name.setText(list.get(position));
+            }else if (getItemViewType(position)==TYPE_TOP){
+                MyViewHolderOne holderOne = (MyViewHolderOne) holder;
+                    holderOne.ib_myFriend_head.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            startActivity(new Intent(getContext(), MyFriendsActivity.class));
+                        }
+                    });
             }
         }
 
@@ -105,11 +117,20 @@ public class FriendsCircleFragment extends Fragment implements TitleView.OnAddCl
             return list.size();
         }
 
-        public class MyViewHolder extends RecyclerView.ViewHolder {
+
+        public class MyViewHolderOne extends RecyclerView.ViewHolder {
+            ImageButton ib_myFriend_head;
+            public MyViewHolderOne(View itemView) {
+                super(itemView);
+                ib_myFriend_head= (ImageButton) itemView.findViewById(R.id.ib_myFriend_head);
+            }
+        }
+
+        public class MyViewHolderTwo extends RecyclerView.ViewHolder {
             ImageView item_contacts_head;
             TextView item_friends_name;
             TextView item_friends_content;
-            public MyViewHolder(View itemView) {
+            public MyViewHolderTwo(View itemView) {
                 super(itemView);
                 item_contacts_head= (ImageView) itemView.findViewById(R.id.item_contacts_head);
                 item_friends_name= (TextView) itemView.findViewById(R.id.item_friends_name);

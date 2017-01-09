@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/bg_gray"
+    android:orientation="vertical">
+
+    <com.threeman.fuckchat.view.TitleBackView
+        android:id="@+id/tbv_login"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
+
+    <LinearLayout
+        android:padding="15dp"
+        android:layout_width="match_parent"
+        android:orientation="vertical"
+        android:clickable="true"
+        android:layout_height="match_parent">
+        <ImageView
+            android:id="@+id/iv_login_head"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:layout_gravity="center_horizontal"
+            android:src="@mipmap/default_icon_user" >
+        </ImageView>
+
+        <EditText
+            android:id="@+id/et_sign_in_account"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="15dp"
+            android:background="@drawable/login_selector_input"
+            android:drawableLeft="@mipmap/user_account_icon"
+            android:drawablePadding="15dp"
+            android:drawableStart="@mipmap/user_account_icon"
+            android:hint="用户名/手机号"
+            android:minHeight="40dp"
+            android:paddingLeft="10dp"
+            android:paddingRight="10dp"
+            android:singleLine="true" />
+
+        <EditText
+            android:id="@+id/et_sign_in_pwd"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:background="@drawable/login_selector_input"
+            android:drawableLeft="@mipmap/user_pwd_lock_icon"
+            android:drawablePadding="15dp"
+            android:drawableStart="@mipmap/user_pwd_lock_icon"
+            android:hint="请输入密码"
+            android:minHeight="40dp"
+            android:paddingLeft="10dp"
+            android:paddingRight="10dp"
+            android:singleLine="true" />
+
+        <Button
+            android:id="@+id/btn_sign_in"
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:layout_marginLeft="2dp"
+            android:layout_marginRight="2dp"
+            android:textSize="18sp"
+            android:layout_marginTop="20dp"
+            android:background="@drawable/btn_green_selector"
+            android:text="登录"
+            android:textColor="#FFFFFFFF" />
+
+        <Button
+            android:id="@+id/btn_register_login"
+            android:layout_width="70dp"
+            android:layout_height="35dp"
+            android:textSize="18sp"
+            android:layout_marginTop="20dp"
+            android:layout_gravity="center_horizontal"
+            android:background="@color/colorWhite"
+            android:text="注册"
+            android:textColor="@color/g_green_btn_pressed" />
+
+    </LinearLayout>
+
+</LinearLayout>

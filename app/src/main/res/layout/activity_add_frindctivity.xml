@@ -43,6 +43,7 @@
         android:background="@android:drawable/edit_text"
         android:enabled="true"
         android:gravity="top"
+        android:hint="说出你此刻的想法，只能发送文字喔"
         android:inputType="textMultiLine"
         android:maxLines="20"
         android:minLines="10"

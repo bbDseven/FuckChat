@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#3F51B5</color>
-    <color name="colorPrimaryDark">#303F9F</color>
+    <color name="colorPrimary">#01D9AE</color>
+    <color name="colorPrimaryDark">#01D9AE</color>
     <color name="colorAccent">#FF4081</color>
     <color name="colorWhite">#FFFFFF</color>
     <color name="colorBack">#000000</color>
@@ -9,4 +9,11 @@
     <color name="colorDivide">#B6B6B6</color>
     <color name="colorGreen">#45c01A</color>
     <color name="colorFriendsName">#0FF</color>
+    <color name="chat_bg">#ECECEC</color>
+    <color name="item_focus">#44ABABAB</color>
+    <color name="text_dark">#FF333333</color>
+    <color name="bg_gray">#FFEAEEF2</color>
+    <color name="g_green_btn_pressed">#99F0DF</color>
+    <color name="g_green_btn_disbabled">#B8F2E7</color>
+    <color name="g_green_btn_normal">#01D9AE</color>
 </resources>

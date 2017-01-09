@@ -1,83 +1,135 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="65dp"
-    android:layout_marginBottom="2dp"
-    android:orientation="horizontal">
+    android:layout_height="wrap_content"
+    android:layout_alignParentBottom="true"
+    android:orientation="vertical">
 
-    <!-- 聊天 -->
+    <!-- 普通底部导航 -->
+
     <LinearLayout
-        android:id="@+id/ll_chat"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:orientation="vertical"
-        android:gravity="center_horizontal|center_vertical">
+        android:id="@+id/main_bottom"
+        android:layout_width="match_parent"
+        android:layout_height="54dp"
+        android:background="#ffffff"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
 
-        <ImageButton
-            android:id="@+id/ib_chat"
-            android:layout_width="55dp"
-            android:layout_height="42dp"
-            android:background="#00000000"
-            android:clickable="false"
-            android:src="@mipmap/chat_show"/>
+        <RelativeLayout
+            android:id="@+id/ll_chat"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:onClick="onTabClicked"
+            android:padding="3dp">
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textColor="@android:color/black"
-            android:textSize="18sp"
-            android:text="聊天"/>
-    </LinearLayout>
+            <RelativeLayout
+                android:layout_width="60dp"
+                android:layout_height="match_parent"
+                android:layout_centerHorizontal="true"
+                android:gravity="center">
 
-    <!-- 通讯录 -->
-    <LinearLayout
-        android:id="@+id/ll_address"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:orientation="vertical"
-        android:gravity="center_horizontal|center_vertical">
+                <ImageButton
+                    android:id="@+id/ib_chat"
+                    android:layout_width="wrap_content"
+                    android:layout_height="28dp"
+                    android:layout_centerHorizontal="true"
+                    android:background="#ffffff"
+                    android:clickable="false"
+                    android:focusable="false"
+                    android:scaleType="centerInside"
+                    android:src="@mipmap/weixin_pressed" />
 
-        <ImageButton
-            android:id="@+id/ib_address"
-            android:layout_width="55dp"
-            android:layout_height="42dp"
-            android:background="#00000000"
-            android:clickable="false"
-            android:src="@mipmap/address_gone"/>
+                <TextView
+                    android:id="@+id/tv_weixin"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@id/ib_chat"
+                    android:layout_centerHorizontal="true"
+                    android:layout_marginTop="3dp"
+                    android:text="撩妹"
+                    android:textColor="#9A9A9A"
+                    android:textSize="12sp" />
+            </RelativeLayout>
+        </RelativeLayout>
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textColor="@android:color/black"
-            android:textSize="18sp"
-            android:text="通讯录"/>
-    </LinearLayout>
+        <RelativeLayout
+            android:id="@+id/ll_address"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:onClick="onTabClicked"
+            android:padding="3dp">
 
-    <!-- 朋友圈 -->
-    <LinearLayout
-        android:id="@+id/ll_friends"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:orientation="vertical"
-        android:gravity="center_horizontal|center_vertical">
+            <RelativeLayout
+                android:layout_width="60dp"
+                android:layout_height="match_parent"
+                android:layout_centerHorizontal="true"
+                android:gravity="center">
 
-        <ImageButton
-            android:id="@+id/ib_friends"
-            android:layout_width="55dp"
-            android:layout_height="42dp"
-            android:background="#00000000"
-            android:clickable="false"
-            android:src="@mipmap/friends_gone"/>
+                <ImageButton
+                    android:id="@+id/ib_address"
+                    android:layout_width="wrap_content"
+                    android:layout_height="28dp"
+                    android:layout_centerHorizontal="true"
+                    android:background="#ffffff"
+                    android:clickable="false"
+                    android:focusable="false"
+                    android:scaleType="centerInside"
+                    android:src="@mipmap/contact_list_normal" />
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textColor="@android:color/black"
-            android:textSize="18sp"
-            android:text="朋友圈"/>
+                <TextView
+                    android:id="@+id/tv_contact_list"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@id/ib_address"
+                    android:layout_centerHorizontal="true"
+                    android:layout_marginTop="3dp"
+                    android:text="通讯录"
+                    android:textColor="#9A9A9A"
+                    android:textSize="12sp" />
+            </RelativeLayout>
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/ll_friends"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:onClick="onTabClicked"
+            android:padding="3dp">
+
+            <RelativeLayout
+                android:layout_width="60dp"
+                android:layout_height="match_parent"
+                android:layout_centerHorizontal="true"
+                android:gravity="center">
+
+                <ImageButton
+                    android:id="@+id/ib_friends"
+                    android:layout_width="wrap_content"
+                    android:layout_height="28dp"
+                    android:layout_centerHorizontal="true"
+                    android:background="#ffffff"
+                    android:clickable="false"
+                    android:focusable="false"
+                    android:scaleType="centerInside"
+                    android:src="@mipmap/find_normal" />
+
+                <TextView
+                    android:id="@+id/tv_find"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@id/ib_friends"
+                    android:layout_centerHorizontal="true"
+                    android:layout_marginTop="3dp"
+                    android:text="朋友圈"
+                    android:textColor="#9A9A9A"
+                    android:textSize="12sp" />
+
+            </RelativeLayout>
+        </RelativeLayout>
+
     </LinearLayout>
 
 </LinearLayout>
