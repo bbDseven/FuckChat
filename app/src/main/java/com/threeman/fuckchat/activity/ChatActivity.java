@@ -125,46 +125,9 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener {
         viewHolder.rv_chat_target.setLayoutManager(new LinearLayoutManager(this));
         viewHolder.rv_chat_target.setAdapter(myAdapter);
 
-        //判断是否选哟创建新的会话容器
-        JSONArray jsonArray = new JSONArray();
-        jsonArray.put(username);
-        jsonArray.put(target);
-        LearnCloudUtil util = new LearnCloudUtil(ChatActivity.this);
-        util.queryEqual("_Conversation", new String[]{"m"},
-                new Object[]{jsonArray}, new LCQueryEquals() {
-                    @Override
-                    public void queryCallBack(List<AVObject> list, AVException e) {
-                        if (e != null) {
-                            Log.e(TAG, "checkConversationID: " + e.toString());
-                        }
-                        Log.e(TAG, "list: " + list.size());
-                        if (list != null && list.size() > 0) {
-                            for (int i=0;i<list.size();i++){
-                                Log.e(TAG, "id: "+list.get(i).getObjectId());
-                            }
-                            String conversationID = list.get(0).getObjectId();
-                            if (TextUtils.isEmpty(conversationID)) {
-                                Log.e(TAG, "没有该conversationID: ");
-//                                sendMessages(username, target, content);
-                                createConversation();
-                            } else {
-                                //通讯
-//                                           getSquare(Greetty);
-//                                           queryInSquare(username);
-                                getSquare(conversationID);
-                                queryInSquare(conversationID);
-//                                getConversation(target);
-//                                sendMessage(content);
-                                Log.e(TAG, "有该conversationID值: " + conversationID);
-                            }
-                        } else {
-                            Log.e(TAG, "数据库没有数据咯: ");
-//                            sendMessages(username, target, content);
-                            createConversation();
-                        }
-                    }
-                });
-
+        //获取会话容器）
+        Log.e(TAG, "target: "+target);
+        getConversation(target);
         //监听数据库变化
         ContentResolver resolver = getContentResolver();
         resolver.registerContentObserver(uri, true, new MyContentObserver(new Handler()));
@@ -300,6 +263,9 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener {
     }
 
 
+    /**
+     * 创建会话容器
+     */
     public void createConversation() {
         AVIMClient client = AVImClientManager.getInstance().getClient();
         // 创建与Jerry之间的对话
@@ -319,67 +285,9 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener {
     }
 
     /**
-     * 根据 conversationId 查取本地缓存中的 conversation，如若没有缓存，则返回一个新建的 conversaiton
-     */
-    private void getSquare(String conversationId) {
-        if (TextUtils.isEmpty(conversationId)) {
-            throw new IllegalArgumentException("conversationId can not be null");
-        }
-
-        AVIMClient client = AVImClientManager.getInstance().getClient();
-        if (null != client) {
-            squareConversation = client.getConversation(conversationId);
-        } else {
-            finish();
-            UIUtil.toastShort(this, "Please call AVIMClient.open first!");
-            Log.e(TAG, "Please call AVIMClient.open first!");
-        }
-//        Log.e(TAG, "conversationId: " + conversationId);
-//        Log.e(TAG, "squareConversation: " + squareConversation);
-    }
-
-
-    /**
-     * 加入 conversation
-     */
-    private void joinSquare() {
-        squareConversation.join(new AVIMConversationCallback() {
-            @Override
-            public void done(AVIMException e) {
-                if (filterException(e)) {
-                    setConversation(squareConversation);
-                }
-            }
-        });
-    }
-
-    /**
-     * 先查询自己是否已经在该 conversation，如果存在则直接赋值，否则先加入，再赋值
-     */
-    private void queryInSquare(String conversationId) {
-        final AVIMClient client = AVImClientManager.getInstance().getClient();
-        AVIMConversationQuery conversationQuery = client.getQuery();
-        conversationQuery.whereEqualTo("objectId", conversationId);
-        conversationQuery.containsMembers(Arrays.asList(AVImClientManager.getInstance().getClientId()));
-        conversationQuery.findInBackground(new AVIMConversationQueryCallback() {
-            @Override
-            public void done(List<AVIMConversation> list, AVIMException e) {
-                if (filterException(e)) {
-                    if (null != list && list.size() > 0) {
-                        setConversation(list.get(0));
-                        Log.e(TAG, "我加入了一次: "+list.get(0).getConversationId());
-                    } else {
-                        joinSquare();
-                    }
-                }
-            }
-        });
-    }
-
-    /**
      * 给会话容器赋值
      *
-     * @param conversation
+     * @param conversation  会话容器
      */
     private void setConversation(AVIMConversation conversation) {
         imConversation = conversation;
@@ -424,7 +332,7 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener {
                     //注意：此处仍有漏洞，如果获取了多个 conversation，默认取第一个
                     if (null != list && list.size() > 0) {
                         setConversation(list.get(0));
-                        Log.e(TAG, "老子又加入了一次: ");
+                        Log.e(TAG, "老子就加入了一次: ");
                     } else {
                         HashMap<String, Object> attributes = new HashMap<String, Object>();
                         attributes.put("customConversationType", 1);
@@ -445,7 +353,7 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-       Log.e(TAG, "onDestroy: "+imConversation.getConversationId());
+        Log.e(TAG, "onDestroy: "+imConversation.getConversationId());
         NotificationUtils.removeTag(imConversation.getConversationId());
     }
 }

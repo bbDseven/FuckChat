@@ -29,13 +29,7 @@ public class NotificationBroadcastReceiver extends BroadcastReceiver {
     } else {
       String conversationId = intent.getStringExtra(Constants.CONVERSATION_ID);
       if (!TextUtils.isEmpty(conversationId)) {
-//        if (Constants.SQUARE_CONVERSATION_ID.equals(conversationId)) {
-//          gotoSquareActivity(context, intent);
-//        } else {
-        Log.e(TAG,"onReceive");
-        UIUtil.toastShort(context,"onReceive");
           gotoSingleChatActivity(context, intent);
-//        }
       }
     }
   }
