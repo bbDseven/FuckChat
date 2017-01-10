@@ -1,6 +1,7 @@
 package com.threeman.fuckchat.activity;
 
 import android.content.Intent;
+import android.database.sqlite.SQLiteDatabase;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -18,9 +19,12 @@ import com.threeman.fuckchat.R;
 import com.threeman.fuckchat.base.BaseActivity;
 import com.threeman.fuckchat.bean.User;
 import com.threeman.fuckchat.callback.LCQueryEquals;
+import com.threeman.fuckchat.db.SQLOpenHelper;
+import com.threeman.fuckchat.globle.AppConfig;
 import com.threeman.fuckchat.learncloud.AVImClientManager;
 import com.threeman.fuckchat.learncloud.Constants;
 import com.threeman.fuckchat.util.LearnCloudUtil;
+import com.threeman.fuckchat.util.SharedPreferencesUtils;
 import com.threeman.fuckchat.util.UIUtil;
 import com.threeman.fuckchat.view.TitleBackView;
 
@@ -139,10 +143,24 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
                         user.setNetPath(ob.getString("netPath"));
                         user.setLocalPath(ob.getString("localPath"));
                     }
+                    //创建一个会话
                     AVImClientManager.getInstance().open(username, new AVIMClientCallback() {
                         @Override
                         public void done(AVIMClient avimClient, AVIMException e) {
                             if (filterException(e)) {
+                                String key="Table_"+username;
+                                //保存用户名
+                                SharedPreferencesUtils.setParam(LoginActivity.this,
+                                        "username",username);
+                                //创建数据库表
+                                boolean is_create_table = (boolean) SharedPreferencesUtils.
+                                        getParam(LoginActivity.this, key, false);
+                                Log.e(TAG, "key: "+key);
+                                Log.e(TAG, "values: "+is_create_table);
+                                if (!is_create_table){
+                                    createChatTable(username);
+                                }
+                                //跳转到主页面
                                 Intent intent = new Intent(LoginActivity.this, MainActivity.class);
                                 intent.putExtra("user_info",user);
                                 startActivity(intent);
@@ -154,5 +172,30 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
                 }
             }
         });
+    }
+
+
+    /**
+     * 创建聊天表
+     * @param username  用户名
+     */
+    public void createChatTable(String username){
+//        String db_name=AppConfig.DB_NAME + username;
+        String table_chat=AppConfig.TABLE_CHAT_NAME+username;
+        String table_friends=AppConfig.TABLE_FRIENDS_NAME+username;
+        SQLOpenHelper helper = new SQLOpenHelper(this,AppConfig.DB_NAME, 1);
+        SQLiteDatabase db = helper.getWritableDatabase();
+        String key="Table_"+username;
+        Log.e(TAG, "createChatTable: "+table_chat);
+        Log.e(TAG, "createChatTable: "+table_friends);
+        //聊天表
+        String sql_chat="create table " + table_chat + "(username text," +
+                "content text,send integer,target text,date text)";
+        //朋友圈表
+        String sql_friends="create table " + table_friends + "(username text," +
+                "content text,date text)";
+        db.execSQL(sql_chat);
+        db.execSQL(sql_friends);
+        SharedPreferencesUtils.setParam(this,key,true);
     }
 }

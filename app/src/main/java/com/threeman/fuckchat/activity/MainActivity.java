@@ -87,8 +87,8 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
         Intent intent = getIntent();
         User user = (User) intent.getSerializableExtra("user_info");
          username = user.getUsername();
-        Log.e(TAG, "username: "+username);
-        Log.e(TAG, "password: "+user.getPassword());
+//        Log.e(TAG, "username: "+username);
+//        Log.e(TAG, "password: "+user.getPassword());
     }
 
     @Override

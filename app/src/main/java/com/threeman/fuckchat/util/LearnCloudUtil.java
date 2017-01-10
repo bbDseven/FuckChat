@@ -30,6 +30,7 @@ public class LearnCloudUtil {
         this.mContext=context;
     }
 
+
     /**
      * LearnCloud查询key与values是否相等
      * @param table  表名
@@ -82,6 +83,13 @@ public class LearnCloudUtil {
         }
         return mException[0];
     }
+
+//    public List<User> queryAllUser(){
+//        AVQuery<AVObject> query = new AVQuery<>("user_info");
+//        query.findInBackground();
+//    }
+
+
 
 
 }

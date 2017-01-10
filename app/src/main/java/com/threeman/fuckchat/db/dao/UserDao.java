@@ -5,6 +5,7 @@ import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 
 import com.threeman.fuckchat.db.SQLOpenHelper;
+import com.threeman.fuckchat.globle.AppConfig;
 
 /**
  * description: 用户数据库工具类
@@ -21,9 +22,9 @@ public class UserDao {
     private Context mContext;
     private SQLOpenHelper helper;
 
-    public UserDao(Context context){
+    public UserDao(Context context,String username){
         this.mContext=context;
-        helper=new SQLOpenHelper(mContext,"fuckChat",1);
+        helper=new SQLOpenHelper(mContext, AppConfig.DB_NAME,1);
     }
 
     /**

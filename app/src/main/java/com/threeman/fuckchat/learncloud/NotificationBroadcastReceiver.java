@@ -10,6 +10,7 @@ import com.threeman.fuckchat.activity.ChatActivity;
 import com.threeman.fuckchat.activity.LoginActivity;
 import com.threeman.fuckchat.activity.MainActivity;
 import com.threeman.fuckchat.activity.TestActivity;
+import com.threeman.fuckchat.util.SharedPreferencesUtils;
 import com.threeman.fuckchat.util.UIUtil;
 
 /**
@@ -63,12 +64,18 @@ public class NotificationBroadcastReceiver extends BroadcastReceiver {
 
   /**
    * 跳转至单聊页面
-   * @param context
-   * @param intent
+   * @param context  上下文对象
+   * @param intent  intent
    */
   private void gotoSingleChatActivity(Context context, Intent intent) {
+    String username = (String) SharedPreferencesUtils.getParam(context, "username", "");
+    String target = (String) SharedPreferencesUtils.getParam(context, "target", "");
     Intent startActivityIntent = new Intent(context, ChatActivity.class);
     startActivityIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+    startActivityIntent.putExtra("username",username);
+    startActivityIntent.putExtra("target",target);
+    Log.e(TAG, "username: "+username);
+    Log.e(TAG, "target: "+target);
     startActivityIntent.putExtra(Constants.MEMBER_ID, intent.getStringExtra(Constants.MEMBER_ID));
     context.startActivity(startActivityIntent);
   }
