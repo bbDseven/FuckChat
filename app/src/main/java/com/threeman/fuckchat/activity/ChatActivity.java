@@ -55,21 +55,32 @@ import java.util.List;
 
 /**
  * description: 聊天Activity
- * <p>
+ * <p/>
  * author: Greetty
- * <p>
+ * <p/>
  * date: 2017/1/9 22:10
- * <p>
+ * <p/>
  * update: 2017/1/9
- * <p>
+ * <p/>
  * version: v1.0
  */
-public class ChatActivity extends BaseActivity {
+public class ChatActivity extends BaseActivity implements View.OnClickListener {
+
+    private class ViewHolder {
+
+        Button chat_btn;
+        RecyclerView rv_chat_target;
+        EditText chat_et;
+        TextView chat_tv_name;
+        ImageView chat_iv_back;
+    }
 
     private final static String TAG = "ChatActivity";
+
     final Uri uri = Uri.parse("content://com.threeman.fuckchat");  //内容提供者URI
     private final static String Greetty = "58734a3a61ff4b006d49c7b3";
     private final static String greetty = "587349211b69e6005ce101a2";
+    private ViewHolder viewHolder;
     private String content;
     private AVIMConversation squareConversation;
     protected AVIMConversation imConversation;
@@ -79,107 +90,155 @@ public class ChatActivity extends BaseActivity {
     private MyAdapter myAdapter;
     private ChatDao chatDao;
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat);
 
-        Button chat_btn = findViewByIds(R.id.chat_btn);
-        final RecyclerView rv_chat_target = findViewByIds(R.id.rv_chat_target);
-        final EditText chat_et = findViewByIds(R.id.chat_et);
-        ImageView chat_iv_back = findViewByIds(R.id.chat_iv_back);
-        TextView chat_tv_name = findViewByIds(R.id.chat_tv_name);
+        initView();
+        initData();
+        initEvent();
+    }
 
+    private void initView() {
+        viewHolder = new ViewHolder();
+        viewHolder.chat_btn = findViewByIds(R.id.chat_btn);
+        viewHolder.rv_chat_target = findViewByIds(R.id.rv_chat_target);
+        viewHolder.chat_et = findViewByIds(R.id.chat_et);
+        viewHolder.chat_iv_back = findViewByIds(R.id.chat_iv_back);
+        viewHolder.chat_tv_name = findViewByIds(R.id.chat_tv_name);
+    }
+
+    private void initData() {
         Intent intent = getIntent();
         username = intent.getStringExtra("username");
         target = intent.getStringExtra("target");
-        Log.e(TAG, "username: " + username);
-        Log.e(TAG, "target: " + target);
-
-        chat_tv_name.setText("当前用户是：" + username + "向：" + target + " 发信息");
+        viewHolder.chat_tv_name.setText("当前用户是：" + username + "  向:" + target + " 发信息");
 
         //查询与target的左右会话
         chatDao = new ChatDao(ChatActivity.this);
         chats = chatDao.queryAll(username, target);
         Log.e(TAG, "大小1  : " + chats.size());
-//        for (Chat chat : chats) {
-//            Log.e(TAG, "username1  : " + chat.getUsername());
-//            Log.e(TAG, "content1  : " + chat.getContent());
-//            Log.e(TAG, "send1  : " + chat.getSend());
-//            Log.e(TAG, "target1  : " + chat.getTarget());
-//            Log.e(TAG, "date1  : " + chat.getDate());
-//            Log.e(TAG, "---------------------------------");
-//        }
 
         //展示会话信息
         myAdapter = new MyAdapter();
-        rv_chat_target.setLayoutManager(new LinearLayoutManager(this));
-        rv_chat_target.setAdapter(myAdapter);
+        viewHolder.rv_chat_target.setLayoutManager(new LinearLayoutManager(this));
+        viewHolder.rv_chat_target.setAdapter(myAdapter);
 
-//        String clientID = checkClientID(username, target);
-//        Log.e(TAG, "clientID: "+clientID);
-//        if (clientID.isEmpty()){
-//            clientID="587476471b69e6005cb58ed4";
-//        }
+        //判断是否选哟创建新的会话容器
+        JSONArray jsonArray = new JSONArray();
+        jsonArray.put(username);
+        jsonArray.put(target);
+        LearnCloudUtil util = new LearnCloudUtil(ChatActivity.this);
+        util.queryEqual("_Conversation", new String[]{"m"},
+                new Object[]{jsonArray}, new LCQueryEquals() {
+                    @Override
+                    public void queryCallBack(List<AVObject> list, AVException e) {
+                        if (e != null) {
+                            Log.e(TAG, "checkConversationID: " + e.toString());
+                        }
+                        Log.e(TAG, "list: " + list.size());
+                        if (list != null && list.size() > 0) {
+                            for (int i=0;i<list.size();i++){
+                                Log.e(TAG, "id: "+list.get(i).getObjectId());
+                            }
+                            String conversationID = list.get(0).getObjectId();
+                            if (TextUtils.isEmpty(conversationID)) {
+                                Log.e(TAG, "没有该conversationID: ");
+//                                sendMessages(username, target, content);
+                                createConversation();
+                            } else {
+                                //通讯
+//                                           getSquare(Greetty);
+//                                           queryInSquare(username);
+                                getSquare(conversationID);
+                                queryInSquare(conversationID);
+//                                getConversation(target);
+//                                sendMessage(content);
+                                Log.e(TAG, "有该conversationID值: " + conversationID);
+                            }
+                        } else {
+                            Log.e(TAG, "数据库没有数据咯: ");
+//                            sendMessages(username, target, content);
+                            createConversation();
+                        }
+                    }
+                });
 
-        //通讯
-        getSquare(Greetty);
-        queryInSquare(username);
-        getConversation(target);
+        //监听数据库变化
+        ContentResolver resolver = getContentResolver();
+        resolver.registerContentObserver(uri, true, new MyContentObserver(new Handler()));
 
-        chat_btn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                content = chat_et.getText().toString().trim();
+
+    }
+
+    private void initEvent() {
+        viewHolder.chat_btn.setOnClickListener(this);
+        viewHolder.chat_iv_back.setOnClickListener(this);
+    }
+
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()) {
+            case R.id.chat_btn:
+                content = viewHolder.chat_et.getText().toString().trim();
                 if (ChatActivity.this.content.isEmpty()) {
                     toast("不能发送空消息喔。。。");
                     return;
                 } else {
+                    //发送信息
                     sendMessage(content);
-                    chat_et.setText("");
+                    viewHolder.chat_et.setText("");
+                    //更新数据库
                     ChatDao chatDao = new ChatDao(ChatActivity.this);
                     chatDao.add(username, content, AppConfig.SEND, target,
                             DateUtil.getNowDate("yyyy-MM-dd HH:mm:ss"));
                 }
-            }
-        });
-
-        chat_iv_back.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
+                break;
+            case R.id.chat_iv_back:
                 finish();
-            }
-        });
+                break;
+            default:
+                break;
+        }
 
-        ContentResolver resolver = getContentResolver();
-        resolver.registerContentObserver(uri, true, new ContentObserver(new Handler()) {
-            @Override
-            public void onChange(boolean selfChange) {
-                super.onChange(selfChange);
-                chatDao = new ChatDao(ChatActivity.this);
-                chats = chatDao.queryAll(username, target);
-                Log.e(TAG, "接收到内容变化通知，开始刷新数据: ");
-                myAdapter.notifyDataSetChanged();
-                rv_chat_target.smoothScrollToPosition(chats.size());
-                Log.e(TAG, "大小: " + chats.size());
-//                for (Chat chat : chats) {
-//                    Log.e(TAG, "username: " + chat.getUsername());
-//                    Log.e(TAG, "content: " + chat.getContent());
-//                    Log.e(TAG, "send: " + chat.getSend());
-//                    Log.e(TAG, "target: " + chat.getTarget());
-//                    Log.e(TAG, "date: " + chat.getDate());
-//                    Log.e(TAG, "---------------------------------");
-//                }
-            }
-        });
     }
 
-    public class MyAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+    /**
+     * 内容监听者
+     */
+    private class MyContentObserver extends ContentObserver {
+
+        /**
+         * Creates a content observer.
+         *
+         * @param handler The handler to run {@link #onChange} on, or null if none.
+         */
+        public MyContentObserver(Handler handler) {
+            super(handler);
+        }
+
+        @Override
+        public void onChange(boolean selfChange) {
+            super.onChange(selfChange);
+            //更新数据
+            chatDao = new ChatDao(ChatActivity.this);
+            chats = chatDao.queryAll(username, target);
+            //刷新UI
+            myAdapter.notifyDataSetChanged();
+            viewHolder.rv_chat_target.smoothScrollToPosition(chats.size());
+        }
+    }
+
+
+    /**
+     * RecycleView适配器
+     */
+    class MyAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
         @Override
         public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-            View view = null;
+            View view;
             if (viewType == AppConfig.SEND) {
                 view = getLayoutInflater().inflate(R.layout.item_chat_send, parent, false);
                 return new ViewHolderOne(view);
@@ -189,13 +248,11 @@ public class ChatActivity extends BaseActivity {
             } else {
                 view = getLayoutInflater().inflate(R.layout.item_chat_receiver, parent, false);
                 return new ViewHolderTwo(view);
-//                return null;
             }
         }
 
         @Override
         public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
-//            Log.e(TAG, "getItemViewType(position): " + getItemViewType(position));
             if (getItemViewType(position) == AppConfig.SEND) {
                 ViewHolderOne holderOne = (ViewHolderOne) holder;
                 holderOne.chat_tv_contentTo.setText(chats.get(position).getContent() + "");
@@ -243,43 +300,23 @@ public class ChatActivity extends BaseActivity {
     }
 
 
-    public void sendMessaages(final String content) {
-        // Tom 用自己的名字作为clientId，获取AVIMClient对象实例
-        AVIMClient tom = AVIMClient.getInstance(username);
-        // 与服务器连接
-        tom.open(new AVIMClientCallback() {
-            @Override
-            public void done(AVIMClient client, AVIMException e) {
-                if (e == null) {
-                    // 创建与Jerry之间的对话
-                    client.createConversation(Arrays.asList(target), username + " & " + target, null,
-                            new AVIMConversationCreatedCallback() {
+    public void createConversation() {
+        AVIMClient client = AVImClientManager.getInstance().getClient();
+        // 创建与Jerry之间的对话
+        client.createConversation(Arrays.asList(target), username + " & " + target, null,
+                new AVIMConversationCreatedCallback() {
 
-                                @Override
-                                public void done(AVIMConversation conversation, AVIMException e) {
-                                    if (e == null) {
-                                        AVIMTextMessage msg = new AVIMTextMessage();
-                                        msg.setText(content);
-                                        // 发送消息
-                                        conversation.sendMessage(msg, new AVIMConversationCallback() {
-
-                                            @Override
-                                            public void done(AVIMException e) {
-                                                if (e == null) {
-                                                    Log.e(TAG, "发送成功！");
-                                                } else {
-                                                    Log.e(TAG, "e: " + e.toString());
-                                                }
-                                            }
-                                        });
-                                    }
-                                }
-                            });
-                }
-            }
-        });
+                    @Override
+                    public void done(AVIMConversation conversation, AVIMException e) {
+                        if (e == null) {
+                            setConversation(conversation);
+                        } else {
+                            Log.e(TAG, "e: " + e.toString());
+                            UIUtil.toastShort(ChatActivity.this, "创建对话容器失败");
+                        }
+                    }
+                });
     }
-
 
     /**
      * 根据 conversationId 查取本地缓存中的 conversation，如若没有缓存，则返回一个新建的 conversaiton
@@ -292,12 +329,13 @@ public class ChatActivity extends BaseActivity {
         AVIMClient client = AVImClientManager.getInstance().getClient();
         if (null != client) {
             squareConversation = client.getConversation(conversationId);
-//            Log.e(TAG, " squareConversation = client.getConversation(conversationId);: ");
         } else {
             finish();
             UIUtil.toastShort(this, "Please call AVIMClient.open first!");
+            Log.e(TAG, "Please call AVIMClient.open first!");
         }
-//        Log.e(TAG, "getSquare: ");
+//        Log.e(TAG, "conversationId: " + conversationId);
+//        Log.e(TAG, "squareConversation: " + squareConversation);
     }
 
 
@@ -308,21 +346,15 @@ public class ChatActivity extends BaseActivity {
         squareConversation.join(new AVIMConversationCallback() {
             @Override
             public void done(AVIMException e) {
-                if (e == null) {
-//                    Log.e(TAG, "setConversation: ");
+                if (filterException(e)) {
                     setConversation(squareConversation);
-                } else {
-//                    Log.e(TAG, "setConversation哈哈: " + e.getMessage());
-//                    Log.e(TAG, "setConversation: " + e.toString());
                 }
-//                if (filterException(e)) {
-//                }
             }
         });
     }
 
     /**
-     * 先查询自己是否已经在该 conversation，如果存在则直接给 chatFragment 赋值，否则先加入，再赋值
+     * 先查询自己是否已经在该 conversation，如果存在则直接赋值，否则先加入，再赋值
      */
     private void queryInSquare(String conversationId) {
         final AVIMClient client = AVImClientManager.getInstance().getClient();
@@ -332,32 +364,26 @@ public class ChatActivity extends BaseActivity {
         conversationQuery.findInBackground(new AVIMConversationQueryCallback() {
             @Override
             public void done(List<AVIMConversation> list, AVIMException e) {
-//                if (filterException(e)) {
-//                    if (null != list && list.size() > 0) {
-//                        setConversation(list.get(0));
-//                    } else {
-//                        joinSquare();
-//                    }
-//                }
-
-                if (e == null) {
+                if (filterException(e)) {
                     if (null != list && list.size() > 0) {
                         setConversation(list.get(0));
-//                        Log.e(TAG, "queryInSquare + setConversation");
-
+                        Log.e(TAG, "我加入了一次: "+list.get(0).getConversationId());
                     } else {
-//                        Log.e(TAG, "queryInSquare + joinSquare");
                         joinSquare();
                     }
-                } else {
-//                    Log.e(TAG, "queryInSquare: " + e.toString());
                 }
             }
         });
     }
 
+    /**
+     * 给会话容器赋值
+     *
+     * @param conversation
+     */
     private void setConversation(AVIMConversation conversation) {
         imConversation = conversation;
+        Log.e(TAG, "setConversation: "+conversation.getConversationId());
         NotificationUtils.addTag(conversation.getConversationId());
     }
 
@@ -374,7 +400,6 @@ public class ChatActivity extends BaseActivity {
             public void done(AVIMException e) {
                 if (e == null) {
                     Log.e(TAG, "发送成功啦...");
-//                    toast("发送信息啦...");
                 } else {
                     Log.e(TAG, "发送信息失败啦..." + e.toString());
                     toast("发送信息失败啦...");
@@ -385,10 +410,9 @@ public class ChatActivity extends BaseActivity {
 
     /**
      * 获取 conversation，为了避免重复的创建，此处先 query 是否已经存在只包含该 member 的 conversation
-     * 如果存在，则直接赋值给 ChatFragment，否者创建后再赋值
+     * 如果存在，则直接赋值，否者创建后再赋值
      */
     private void getConversation(final String memberId) {
-        final String[] objectId = {null};
         final AVIMClient client = AVImClientManager.getInstance().getClient();
         AVIMConversationQuery conversationQuery = client.getQuery();
         conversationQuery.withMembers(Arrays.asList(memberId), true);
@@ -396,46 +420,11 @@ public class ChatActivity extends BaseActivity {
         conversationQuery.findInBackground(new AVIMConversationQueryCallback() {
             @Override
             public void done(List<AVIMConversation> list, AVIMException e) {
-//                Log.e(TAG, "done: ");
                 if (filterException(e)) {
                     //注意：此处仍有漏洞，如果获取了多个 conversation，默认取第一个
                     if (null != list && list.size() > 0) {
-//                        final JSONArray jsonArray = new JSONArray();
-//                        jsonArray.put(username);
-//                        jsonArray.put(target);
-//                        LearnCloudUtil util = new LearnCloudUtil(ChatActivity.this);
-//                        util.queryEqual("_Conversation", new String[]{"m"},
-//                                new Object[]{jsonArray}, new LCQueryEquals() {
-//                                    @Override
-//                                    public void queryCallBack(List<AVObject> list, AVException e) {
-//                                        if (e != null) {
-//                                            Log.e(TAG, "e: " + e.toString());
-//                                        }
-//                                        if (list != null && list.size() > 0) {
-//                                            objectId[0] = list.get(0).getObjectId();
-//                                        }
-////                                        for (AVObject ob : list) {
-//////                                            objectId[0] = ob.getObjectId();
-////                                        }
-//                                    }
-//                                });
-//                        for (int i = 0; i < list.size(); i++) {
-//                            if (list.get(0).getConversationId() == objectId[0]) {
-                                setConversation(list.get(0));
-//                            } else {
-//                                HashMap<String, Object> attributes = new HashMap<String, Object>();
-//                                attributes.put("customConversationType", 1);
-//                                client.createConversation(Arrays.asList(memberId), null, attributes, false,
-//                                        new AVIMConversationCreatedCallback() {
-//                                            @Override
-//                                            public void done(AVIMConversation avimConversation, AVIMException e) {
-//                                                setConversation(avimConversation);
-//                                            }
-//                                        });
-//                            }
-//                        }
-
-
+                        setConversation(list.get(0));
+                        Log.e(TAG, "老子又加入了一次: ");
                     } else {
                         HashMap<String, Object> attributes = new HashMap<String, Object>();
                         attributes.put("customConversationType", 1);
@@ -452,30 +441,11 @@ public class ChatActivity extends BaseActivity {
         });
     }
 
-    public String checkClientID(String username,String target){
-        final String[] objectId = {null};
-        final JSONArray jsonArray = new JSONArray();
-        jsonArray.put(username);
-        jsonArray.put(target);
-        LearnCloudUtil util = new LearnCloudUtil(ChatActivity.this);
-        util.queryEqual("_Conversation", new String[]{"m"},
-                new Object[]{jsonArray}, new LCQueryEquals() {
-                    @Override
-                    public void queryCallBack(List<AVObject> list, AVException e) {
-                        if (e != null) {
-                            Log.e(TAG, "e: " + e.toString());
-                        }
-                        if (list != null && list.size() > 0) {
-                            objectId[0] = list.get(0).getObjectId();
-                        }
-                    }
-                });
-        return objectId[0];
-    }
-
+    
     @Override
     protected void onDestroy() {
         super.onDestroy();
+       Log.e(TAG, "onDestroy: "+imConversation.getConversationId());
         NotificationUtils.removeTag(imConversation.getConversationId());
     }
 }

@@ -41,9 +41,9 @@ public class MessageHandler extends AVIMTypedMessageHandler<AVIMTypedMessage> {
 
         String clientID = "";
         text = ((AVIMTextMessage) message).getText();
-        Log.e(TAG, "conversation: "+conversation.getConversationId());
-        Log.e(TAG, "client: "+client.getClientId());
-        Log.e(TAG, "message.getFrom(): "+message.getFrom());
+        Log.e(TAG, "conversationId: "+conversation.getConversationId());
+//        Log.e(TAG, "client: "+client.getClientId());
+//        Log.e(TAG, "message.getFrom(): "+message.getFrom());
         Log.e(TAG, "内容是: " + text);
         SharedPreferencesUtils.setParam(context,"target",message.getFrom());
 //
@@ -77,7 +77,7 @@ public class MessageHandler extends AVIMTypedMessageHandler<AVIMTypedMessage> {
         ImTypeMessageEvent event = new ImTypeMessageEvent();
         event.message = message;
         event.conversation = conversation;
-        Log.e(TAG, "哈哈哈、女神发来消息: " + text);
+//        Log.e(TAG, "哈哈哈、女神发来消息: " + text);
         String username = (String) SharedPreferencesUtils.getParam(context, "username", "");
         String target = (String) SharedPreferencesUtils.getParam(context, "target", "");
         //创建数据库表

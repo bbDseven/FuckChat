@@ -1,6 +1,7 @@
 package com.threeman.fuckchat.base;
 
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
@@ -16,6 +17,7 @@ public class BaseActivity extends AppCompatActivity {
     protected boolean filterException(Exception e) {
         if (e != null) {
             e.printStackTrace();
+            Log.e("BaseActivity", "e: "+e.toString());
             toast(e.getMessage());
             return false;
         } else {
