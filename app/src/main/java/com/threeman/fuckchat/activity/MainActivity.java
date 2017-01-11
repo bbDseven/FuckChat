@@ -103,7 +103,9 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
 //                sendMessageToJerryFromTom();
                 break;
             case 1:  //添加朋友
-                startActivity(new Intent(this, SearchContactsActivity.class));
+                Intent intent = new Intent(this, SearchContactsActivity.class);
+                intent.putExtra("username",username);
+                startActivity(intent);
                 break;
             case 2:  //发朋友圈
                 startActivity(new Intent(this, AddFriendsActivity.class));

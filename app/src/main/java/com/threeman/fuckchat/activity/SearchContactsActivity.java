@@ -1,6 +1,7 @@
 package com.threeman.fuckchat.activity;
 
 import android.app.AlertDialog;
+import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -20,12 +21,26 @@ import com.avos.avoscloud.AVException;
 import com.avos.avoscloud.AVObject;
 import com.avos.avoscloud.AVQuery;
 import com.avos.avoscloud.FindCallback;
+import com.avos.avoscloud.im.v2.AVIMClient;
+import com.avos.avoscloud.im.v2.AVIMConversation;
+import com.avos.avoscloud.im.v2.AVIMConversationQuery;
+import com.avos.avoscloud.im.v2.AVIMException;
+import com.avos.avoscloud.im.v2.callback.AVIMConversationCallback;
+import com.avos.avoscloud.im.v2.callback.AVIMConversationCreatedCallback;
+import com.avos.avoscloud.im.v2.callback.AVIMConversationQueryCallback;
+import com.avos.avoscloud.im.v2.messages.AVIMTextMessage;
 import com.threeman.fuckchat.R;
 import com.threeman.fuckchat.base.BaseActivity;
 import com.threeman.fuckchat.bean.User;
+import com.threeman.fuckchat.db.dao.ContactsDao;
+import com.threeman.fuckchat.globle.ContactsState;
+import com.threeman.fuckchat.learncloud.AVImClientManager;
+import com.threeman.fuckchat.learncloud.NotificationUtils;
 import com.threeman.fuckchat.util.UIUtil;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -44,7 +59,6 @@ public class SearchContactsActivity extends BaseActivity implements View.OnClick
     private class ViewHolder {
 
         ImageView bar_btn_back;
-
         EditText bar_et_search;
         Button bar_btn_clear_search;
         RelativeLayout search_item;
@@ -61,6 +75,10 @@ public class SearchContactsActivity extends BaseActivity implements View.OnClick
     private MyAdapter myAdapter;
     private List<User> users;
     private MyViewHolder myViewHolder;
+    protected AVIMConversation imConversation;
+    private ContactsDao contactsDao;
+    private String username;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -93,14 +111,22 @@ public class SearchContactsActivity extends BaseActivity implements View.OnClick
     private void initDate() {
         users = new ArrayList<>();
         myAdapter = new MyAdapter();
-        viewHolder.lv_contacts.setAdapter(myAdapter);
 
+        Intent intent = getIntent();
+        username = intent.getStringExtra("username");
+
+        viewHolder.lv_contacts.setAdapter(myAdapter);
         viewHolder.lv_contacts.setOnItemClickListener(this);
     }
 
     //ListView点击事件
     @Override
     public void onItemClick(AdapterView<?> parent, View view, final int position, long id) {
+
+        final String target_name = users.get(position).getUsername();
+        Log.e(TAG, "点击了target_name: "+target_name);
+        //创建会话容器
+        getConversation(target_name);
 
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         View dialogView = getLayoutInflater().inflate(R.layout.dialog_request_contacts, null);
@@ -121,7 +147,12 @@ public class SearchContactsActivity extends BaseActivity implements View.OnClick
             @Override
             public void onClick(View v) {
                 String content = dialog_et_content.getText().toString().trim();
-                UIUtil.toastShort(SearchContactsActivity.this,content);
+                UIUtil.toastShort(SearchContactsActivity.this, content);
+                //发送信息
+                sendMessage(content);
+                //把该联系人添加到用户表中去，标记为已发送请求
+                contactsDao = new ContactsDao(SearchContactsActivity.this);
+                contactsDao.add(username,target_name, ContactsState.CONTACTS_HAVE_SEND);
                 alertDialog.dismiss();
             }
         });
@@ -171,6 +202,74 @@ public class SearchContactsActivity extends BaseActivity implements View.OnClick
                 break;
         }
     }
+
+    /**
+     * 给会话容器赋值
+     *
+     * @param conversation 会话容器
+     */
+    private void setConversation(AVIMConversation conversation) {
+        imConversation = conversation;
+        Log.e(TAG, "setConversation: " + conversation.getConversationId());
+        NotificationUtils.addTag(conversation.getConversationId());
+    }
+
+
+    /**
+     * 获取 conversation，为了避免重复的创建，此处先 query 是否已经存在只包含该 member 的 conversation
+     * 如果存在，则直接赋值，否者创建后再赋值
+     */
+    private void getConversation(final String memberId) {
+        final AVIMClient client = AVImClientManager.getInstance().getClient();
+        AVIMConversationQuery conversationQuery = client.getQuery();
+        conversationQuery.withMembers(Arrays.asList(memberId), true);
+        conversationQuery.whereEqualTo("customConversationType", 1);
+        conversationQuery.findInBackground(new AVIMConversationQueryCallback() {
+            @Override
+            public void done(List<AVIMConversation> list, AVIMException e) {
+                if (filterException(e)) {
+                    //注意：此处仍有漏洞，如果获取了多个 conversation，默认取第一个
+                    if (null != list && list.size() > 0) {
+                        setConversation(list.get(0));
+                        Log.e(TAG, "老子就加入了一次: ");
+                    } else {
+                        HashMap<String, Object> attributes = new HashMap<String, Object>();
+                        attributes.put("customConversationType", 1);
+                        client.createConversation(Arrays.asList(memberId), null, attributes, false,
+                                new AVIMConversationCreatedCallback() {
+                                    @Override
+                                    public void done(AVIMConversation avimConversation, AVIMException e) {
+                                        setConversation(avimConversation);
+                                    }
+                                });
+                    }
+                }
+            }
+        });
+    }
+
+
+    /**
+     * 发送信息
+     *
+     * @param content 发送内容
+     */
+    private void sendMessage(String content) {
+        AVIMTextMessage message = new AVIMTextMessage();
+        message.setText(content);
+        imConversation.sendMessage(message, new AVIMConversationCallback() {
+            @Override
+            public void done(AVIMException e) {
+                if (e == null) {
+                    Log.e(TAG, "发送成功啦...");
+                } else {
+                    Log.e(TAG, "发送信息失败啦..." + e.toString());
+                    toast("发送信息失败啦...");
+                }
+            }
+        });
+    }
+
 
     public class MyAdapter extends BaseAdapter {
 

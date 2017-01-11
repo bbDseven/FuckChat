@@ -9,27 +9,38 @@
         android:layout_height="70dp">
 
         <ImageView
-            android:id="@+id/item_contacts_head"
+            android:id="@+id/item_handle_friends_head"
             android:layout_width="50dp"
             android:layout_height="50dp"
             android:layout_margin="10dp"
             android:src="@mipmap/icon_contacts_head" />
 
         <TextView
-            android:id="@+id/item_contacts_name"
-            android:layout_width="wrap_content"
+            android:id="@+id/item_handle_friends_name"
+            android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:gravity="center"
-            android:textSize="16sp"
+            android:layout_weight="1"
+            android:gravity="left|center_vertical"
             android:paddingLeft="5dp"
-            android:text="陈贵堂" />
+            android:text="陈贵堂"
+            android:textSize="16sp" />
+
+        <Button
+            android:id="@+id/item_handle_friends_action"
+            android:layout_width="60dp"
+            android:layout_height="40dp"
+            android:background="@color/g_green_btn_normal"
+            android:text="接受"
+            android:layout_marginRight="20dp"
+            android:textColor="@color/colorWhite"
+            android:textSize="16sp" />
     </LinearLayout>
 
 
     <TextView
         android:layout_width="match_parent"
-        android:layout_marginLeft="10dp"
         android:layout_height="@dimen/Divide_line"
+        android:layout_marginLeft="10dp"
         android:background="@color/colorDivide" />
 
 </LinearLayout>

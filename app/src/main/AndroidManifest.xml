@@ -45,11 +45,13 @@
 
         <receiver android:name=".learncloud.NotificationBroadcastReceiver" />
 
-        <activity android:name=".activity.ChatActivity"/>
+        <activity android:name=".activity.ChatActivity" />
 
         <provider
-            android:authorities="com.threeman.fuckchat"
-            android:name=".contentprovider.ChatProvider" />
+            android:name=".contentprovider.ChatProvider"
+            android:authorities="com.threeman.fuckchat" />
+
+        <activity android:name=".activity.HandleNewFriendsActivity"></activity>
     </application>
 
 </manifest>

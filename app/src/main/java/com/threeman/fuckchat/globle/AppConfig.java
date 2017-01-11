@@ -43,5 +43,15 @@ public class AppConfig {
      */
     public final static String TABLE_FRIENDS_NAME="friends";
 
+    /**
+     * 朋友圈表的前缀的名字，friends_用户名
+     */
+    public final static String TABLE_CONTACTS_NAME="contacts";
+
+    /**
+     * 接受添加好友请求恢复内容
+     */
+    public final static String ACCEPT_ADD_FRIENDS="我接受你的添加请求";
+
 
 }
