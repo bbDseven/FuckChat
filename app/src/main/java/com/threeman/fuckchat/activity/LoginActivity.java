@@ -76,7 +76,6 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
     }
 
     private void initEvent() {
-//        viewHolder.tbv_login.setBackClickListener(this);
         viewHolder.iv_login_head.setOnClickListener(this);
         viewHolder.btn_sign_in.setOnClickListener(this);
         viewHolder.btn_register_login.setOnClickListener(this);
@@ -89,7 +88,6 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
         Intent intent = getIntent();
         username = intent.getStringExtra("username");
         password = intent.getStringExtra("password");
-//        viewHolder.et_sign_in_account.setText(username);
 //        viewHolder.et_sign_in_pwd.setText(password);
         viewHolder.et_sign_in_account.setText("greetty");
         viewHolder.et_sign_in_pwd.setText("123456");

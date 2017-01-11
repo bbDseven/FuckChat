@@ -83,13 +83,4 @@ public class LearnCloudUtil {
         }
         return mException[0];
     }
-
-//    public List<User> queryAllUser(){
-//        AVQuery<AVObject> query = new AVQuery<>("user_info");
-//        query.findInBackground();
-//    }
-
-
-
-
 }

@@ -1,20 +1,14 @@
 package com.threeman.fuckchat.activity;
 
 import android.content.ContentResolver;
-import android.content.Context;
 import android.content.Intent;
 import android.database.ContentObserver;
 import android.net.Uri;
-import android.os.Handler;
-import android.support.annotation.Nullable;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.text.TextUtils;
-import android.util.AttributeSet;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -22,14 +16,10 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.alibaba.fastjson.JSONObject;
-import com.avos.avoscloud.AVException;
-import com.avos.avoscloud.AVObject;
 import com.avos.avoscloud.im.v2.AVIMClient;
 import com.avos.avoscloud.im.v2.AVIMConversation;
 import com.avos.avoscloud.im.v2.AVIMConversationQuery;
 import com.avos.avoscloud.im.v2.AVIMException;
-import com.avos.avoscloud.im.v2.callback.AVIMClientCallback;
 import com.avos.avoscloud.im.v2.callback.AVIMConversationCallback;
 import com.avos.avoscloud.im.v2.callback.AVIMConversationCreatedCallback;
 import com.avos.avoscloud.im.v2.callback.AVIMConversationQueryCallback;
@@ -37,20 +27,14 @@ import com.avos.avoscloud.im.v2.messages.AVIMTextMessage;
 import com.threeman.fuckchat.R;
 import com.threeman.fuckchat.base.BaseActivity;
 import com.threeman.fuckchat.bean.Chat;
-import com.threeman.fuckchat.callback.LCQueryEquals;
 import com.threeman.fuckchat.db.dao.ChatDao;
 import com.threeman.fuckchat.globle.AppConfig;
 import com.threeman.fuckchat.learncloud.AVImClientManager;
 import com.threeman.fuckchat.learncloud.NotificationUtils;
 import com.threeman.fuckchat.util.DateUtil;
-import com.threeman.fuckchat.util.LearnCloudUtil;
-import com.threeman.fuckchat.util.UIUtil;
-
-import org.json.JSONArray;
 
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -67,7 +51,6 @@ import java.util.List;
 public class ChatActivity extends BaseActivity implements View.OnClickListener {
 
     private class ViewHolder {
-
         Button chat_btn;
         RecyclerView rv_chat_target;
         EditText chat_et;
@@ -126,7 +109,6 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener {
         viewHolder.rv_chat_target.setAdapter(myAdapter);
 
         //获取会话容器）
-        Log.e(TAG, "target: "+target);
         getConversation(target);
         //监听数据库变化
         ContentResolver resolver = getContentResolver();
@@ -260,28 +242,6 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener {
                 chat_tv_contentFrom = (TextView) itemView.findViewById(R.id.chat_tv_contentFrom);
             }
         }
-    }
-
-
-    /**
-     * 创建会话容器
-     */
-    public void createConversation() {
-        AVIMClient client = AVImClientManager.getInstance().getClient();
-        // 创建与Jerry之间的对话
-        client.createConversation(Arrays.asList(target), username + " & " + target, null,
-                new AVIMConversationCreatedCallback() {
-
-                    @Override
-                    public void done(AVIMConversation conversation, AVIMException e) {
-                        if (e == null) {
-                            setConversation(conversation);
-                        } else {
-                            Log.e(TAG, "e: " + e.toString());
-                            UIUtil.toastShort(ChatActivity.this, "创建对话容器失败");
-                        }
-                    }
-                });
     }
 
     /**

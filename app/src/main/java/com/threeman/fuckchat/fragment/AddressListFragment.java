@@ -1,55 +1,109 @@
 package com.threeman.fuckchat.fragment;
 
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.avos.avoscloud.AVException;
+import com.avos.avoscloud.AVObject;
+import com.avos.avoscloud.AVQuery;
+import com.avos.avoscloud.FindCallback;
 import com.threeman.fuckchat.R;
+import com.threeman.fuckchat.bean.User;
 
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- *  通讯录界面
+ * 通讯录界面
  * Created by cjz on 2017/1/6 0006.
  */
-public class AddressListFragment extends Fragment{
+public class AddressListFragment extends Fragment {
 
+    private final static String TAG = "ChatFragment";
+    private final static int QUERY_ALL_USER = 1;
     private View addressView;
+    private MyAdapter adapter;
     private RecyclerView rv_contacts;
-    private List<String> list;
+    private ArrayList<User> users;
+
+
+    private Handler handler = new Handler() {
+        @Override
+        public void handleMessage(Message msg) {
+            switch (msg.what) {
+                case QUERY_ALL_USER:
+                    adapter = new MyAdapter();
+                    rv_contacts.setAdapter(adapter);
+                    break;
+                default:
+                    break;
+            }
+        }
+    };
+
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        addressView = inflater.inflate(R.layout.fragment_address,container,false);
+        addressView = inflater.inflate(R.layout.fragment_address, container, false);
         initView(addressView);
         initData();
         return addressView;
     }
 
     private void initView(View view) {
-        rv_contacts= (RecyclerView) view.findViewById(R.id.rv_contacts);
+        rv_contacts = (RecyclerView) view.findViewById(R.id.rv_contacts);
     }
 
     private void initData() {
-        MyAdapter adapter = new MyAdapter();
-        list=new ArrayList<>();
-        for (int i=0;i<20;i++){
-            list.add("陈贵堂"+i);
-        }
         rv_contacts.setLayoutManager(new LinearLayoutManager(getContext()));
-        rv_contacts.setAdapter(adapter);
+        QueryAllUser();
     }
 
-    class MyAdapter extends RecyclerView.Adapter<MyAdapter.MyViewHolder>{
+    /**
+     * 查询所有用户
+     */
+    public void QueryAllUser() {
+        users = new ArrayList<>();
+        AVQuery<AVObject> query = new AVQuery<>("user_info");
+        query.findInBackground(new FindCallback<AVObject>() {
+            @Override
+            public void done(List<AVObject> list, AVException e) {
+                if (e != null) {
+                    Log.e(TAG, "出错了: ");
+                    return;
+                }
+                for (AVObject ob : list) {
+                    User user = new User();
+                    user.setUsername(ob.getString("username"));
+                    user.setNickname(ob.getString("nickname"));
+                    user.setPassword(ob.getString("password"));
+                    user.setNetPath(ob.getString("netPath"));
+                    user.setLocalPath(ob.getString("localPath"));
+                    users.add(user);
+                }
+                handler.sendEmptyMessage(QUERY_ALL_USER);
+
+            }
+        });
+    }
+
+
+    /**
+     * 适配器
+     */
+    class MyAdapter extends RecyclerView.Adapter<MyAdapter.MyViewHolder> {
 
         @Override
         public MyViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
@@ -59,21 +113,22 @@ public class AddressListFragment extends Fragment{
 
         @Override
         public void onBindViewHolder(MyViewHolder holder, int position) {
-            holder.item_contacts_name.setText(list.get(position));
+            holder.item_contacts_name.setText(users.get(position).getUsername());
         }
 
         @Override
         public int getItemCount() {
-            return list.size();
+            return users.size();
         }
 
         public class MyViewHolder extends RecyclerView.ViewHolder {
             ImageView item_contacts_head;
             TextView item_contacts_name;
+
             public MyViewHolder(View itemView) {
                 super(itemView);
-                item_contacts_head= (ImageView) itemView.findViewById(R.id.item_contacts_head);
-                item_contacts_name= (TextView) itemView.findViewById(R.id.item_contacts_name);
+                item_contacts_head = (ImageView) itemView.findViewById(R.id.item_contacts_head);
+                item_contacts_name = (TextView) itemView.findViewById(R.id.item_contacts_name);
             }
         }
     }

@@ -97,9 +97,9 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
         switch (button_selext_index) {
             case 0:  //发起聊天
                 UIUtil.toastShort(this, "发起聊天");
-                Intent intent = new Intent(this, TestActivity.class);
-                intent.putExtra("username",username);
-                startActivity(intent);
+//                Intent intent = new Intent(this, TestActivity.class);
+//                intent.putExtra("username",username);
+//                startActivity(intent);
 //                sendMessageToJerryFromTom();
                 break;
             case 1:  //添加朋友

@@ -2,6 +2,8 @@ package com.threeman.fuckchat.fragment;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
@@ -38,13 +40,28 @@ import java.util.List;
 public class ChatFragment extends Fragment {
 
     private final static String TAG = "ChatFragment";
+    private final static int QUERY_ALL_USER = 1;
     private View ChatView;
     private RecyclerView rv_chat;
     private MyAdapter adapter;
-    private List<String> list;
     private String username;
     private ArrayList<User> users;
 
+
+
+    private Handler handler=new Handler(){
+        @Override
+        public void handleMessage(Message msg) {
+            switch (msg.what){
+                case QUERY_ALL_USER:
+                    adapter=new MyAdapter();
+                    rv_chat.setAdapter(adapter);
+                    break;
+                default:
+                    break;
+            }
+        }
+    };
 
 
     @Nullable
@@ -65,45 +82,37 @@ public class ChatFragment extends Fragment {
     }
 
     public void initData(){
-        users = new ArrayList<>();
-//        AVQuery<AVObject> query = new AVQuery<>("user_info");
-//        query.whereEqualTo("password","123456");
-//        query.findInBackground(new FindCallback<AVObject>() {
-//            @Override
-//            public void done(List<AVObject> list, AVException e) {
-//                if (e!=null){
-//                    Log.e(TAG, "出错了: ");
-//                    return;
-//                }
-//                Log.e(TAG, "list: "+list.size());
-//                for (AVObject ob : list) {
-//                    User user = new User();
-//                    user.setUsername(ob.getString("username"));
-//                    user.setNickname(ob.getString("nickname"));
-//                    user.setPassword(ob.getString("password"));
-//                    user.setNetPath(ob.getString("netPath"));
-//                    user.setLocalPath(ob.getString("localPath"));
-//                    users.add(user);
-//                }
-//            }
-//        });
-
-        list = new ArrayList<>();
-        for (int i = 0; i < 20; i++) {
-            if (i == 0) {
-                list.add("greetty");
-            } else if (i == 1) {
-                list.add("gui");
-            } else if (i == 2) {
-                list.add("haha");
-            }else {
-                list.add("陈贵堂" + i);
-            }
-        }
-
         rv_chat.setLayoutManager(new LinearLayoutManager(getContext()));
-        adapter = new MyAdapter();
-        rv_chat.setAdapter(adapter);
+        QueryAllUser();
+
+    }
+
+    /**
+     * 查询所有用户
+     */
+    public void QueryAllUser(){
+        users = new ArrayList<>();
+        AVQuery<AVObject> query = new AVQuery<>("user_info");
+        query.findInBackground(new FindCallback<AVObject>() {
+            @Override
+            public void done(List<AVObject> list, AVException e) {
+                if (e!=null){
+                    Log.e(TAG, "出错了: ");
+                    return;
+                }
+                for (AVObject ob : list) {
+                    User user = new User();
+                    user.setUsername(ob.getString("username"));
+                    user.setNickname(ob.getString("nickname"));
+                    user.setPassword(ob.getString("password"));
+                    user.setNetPath(ob.getString("netPath"));
+                    user.setLocalPath(ob.getString("localPath"));
+                    users.add(user);
+                }
+                handler.sendEmptyMessage(QUERY_ALL_USER);
+
+            }
+        });
     }
 
     class MyAdapter extends RecyclerView.Adapter<MyAdapter.MyViewHolder> {
@@ -116,27 +125,12 @@ public class ChatFragment extends Fragment {
 
         @Override
         public void onBindViewHolder(final MyViewHolder holder, int position) {
-            holder.item_chat_name.setText(list.get(position));
-//            holder.ll_item_chat.setOnClickListener(new View.OnClickListener() {
-//                @Override
-//                public void onClick(View v) {
-//                    if (getAdapterPosition() == RecyclerView.NO_POSITION) {
-//                        UIUtil.toastShort(getContext(), "please click again!");
-//                        return;
-//                    }
-//                    SharedPreferencesUtils.setParam(getContext(), "target", list.get());
-//
-//                    Intent intent = new Intent(getContext(), ChatActivity.class);
-//                    intent.putExtra("username", username);
-//                    intent.putExtra("target", holder.item_chat_name.getText().toString().trim());
-//                    getContext().startActivity(intent);
-//                }
-//            });
+            holder.item_chat_name.setText(users.get(position).getUsername());
         }
 
         @Override
         public int getItemCount() {
-            return list.size();
+            return users.size();
         }
 
         public class MyViewHolder extends RecyclerView.ViewHolder {
@@ -158,12 +152,12 @@ public class ChatFragment extends Fragment {
                     public void onClick(View v) {
                         final int position = getAdapterPosition();
                         if (position == RecyclerView.NO_POSITION) {
-                            UIUtil.toastShort(getContext(), "please click again!");
+                            UIUtil.toastShort(getContext(), "你的操作有误，请从新选择");
                             return;
                         }
-//                        Log.e(TAG, "position: "+position);
-                        SharedPreferencesUtils.setParam(getContext(), "target", list.get(position));
+                        SharedPreferencesUtils.setParam(getContext(), "target", users.get(position));
 
+                        //跳转到聊天界面
                         Intent intent = new Intent(getContext(), ChatActivity.class);
                         intent.putExtra("username", username);
                         intent.putExtra("target", item_chat_name.getText().toString().trim());
