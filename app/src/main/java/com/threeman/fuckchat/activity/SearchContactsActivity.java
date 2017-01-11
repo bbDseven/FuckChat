@@ -4,6 +4,7 @@ import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
+import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
@@ -64,6 +65,7 @@ public class SearchContactsActivity extends BaseActivity implements View.OnClick
         RelativeLayout search_item;
         TextView search_tv_content;
         ListView lv_contacts;
+        TextView tv_search_tip;
     }
 
     private final static String TAG = "SearchContactsActivity";
@@ -99,6 +101,7 @@ public class SearchContactsActivity extends BaseActivity implements View.OnClick
         viewHolder.search_item = findViewByIds(R.id.search_item);
         viewHolder.search_tv_content = findViewByIds(R.id.search_tv_content);
         viewHolder.lv_contacts = findViewByIds(R.id.lv_contacts);
+        viewHolder.tv_search_tip = findViewByIds(R.id.tv_search_tip);
     }
 
     private void initEvent() {
@@ -170,33 +173,39 @@ public class SearchContactsActivity extends BaseActivity implements View.OnClick
                 break;
             case R.id.search_item:
 //                UIUtil.toastShort(this, "开始查询联系人");
-                users.clear();
                 mContent = viewHolder.bar_et_search.getText().toString().trim();
-                AVQuery<AVObject> query = new AVQuery<>("user_info");
-                query.whereContains("username", mContent);
-                query.findInBackground(new FindCallback<AVObject>() {
-                    @Override
-                    public void done(List<AVObject> list, AVException e) {
-                        if (e != null) {
-                            Log.e(TAG, "查询联系人出错啦:");
-                            return;
-                        }
-                        if (list != null && list.size() > 0) {
-                            for (AVObject ob : list) {
-                                User user = new User();
-                                user.setUsername(ob.getString("username"));
-                                user.setNickname(ob.getString("nickname"));
-                                user.setPassword(ob.getString("password"));
-                                user.setNetPath(ob.getString("netPath"));
-                                user.setLocalPath(ob.getString("localPath"));
-                                users.add(user);
+                if (TextUtils.isEmpty(mContent)){
+                    UIUtil.toastShort(this,"请输入关键字");
+                    return;
+                }else {
+                    users.clear();
+                    AVQuery<AVObject> query = new AVQuery<>("user_info");
+                    query.whereContains("username", mContent);
+                    query.findInBackground(new FindCallback<AVObject>() {
+                        @Override
+                        public void done(List<AVObject> list, AVException e) {
+                            if (e != null) {
+                                Log.e(TAG, "查询联系人出错啦:");
+                                return;
                             }
-                            myAdapter.notifyDataSetChanged();
-                        } else {
-
+                            if (list != null && list.size() > 0) {
+                                viewHolder.tv_search_tip.setVisibility(View.GONE);
+                                for (AVObject ob : list) {
+                                    User user = new User();
+                                    user.setUsername(ob.getString("username"));
+                                    user.setNickname(ob.getString("nickname"));
+                                    user.setPassword(ob.getString("password"));
+                                    user.setNetPath(ob.getString("netPath"));
+                                    user.setLocalPath(ob.getString("localPath"));
+                                    users.add(user);
+                                }
+                                myAdapter.notifyDataSetChanged();
+                            } else {
+                                viewHolder.tv_search_tip.setVisibility(View.VISIBLE);
+                            }
                         }
-                    }
-                });
+                    });
+                }
                 break;
             default:
                 break;
@@ -333,4 +342,14 @@ public class SearchContactsActivity extends BaseActivity implements View.OnClick
     public void afterTextChanged(Editable s) {
         viewHolder.search_tv_content.setText(et_content);
     }
+
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (imConversation!=null){
+            NotificationUtils.removeTag(imConversation.getConversationId());
+        }
+    }
 }
+

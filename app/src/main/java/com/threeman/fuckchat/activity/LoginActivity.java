@@ -182,7 +182,6 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
      * @param username 用户名
      */
     public void createChatTable(String username) {
-//        String db_name=AppConfig.DB_NAME + username;
         String table_chat = AppConfig.TABLE_CHAT_NAME + username;
         String table_friends = AppConfig.TABLE_FRIENDS_NAME + username;
         String table_contacts = AppConfig.TABLE_CONTACTS_NAME + username;
@@ -194,10 +193,11 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener 
                 "content text,send integer,target text,date text)";
         //朋友圈表
         String sql_friends = "create table " + table_friends + "(username text," +
-                "content text,date text)";
+                "content text,imagePath text,date text)";
         //好友表
         String sql_contacts = "create table " + table_contacts + "(username text,contactsState text)";
 
+        Log.e(TAG, "创建表: "+table_chat);
         db.execSQL(sql_chat);
         db.execSQL(sql_friends);
         db.execSQL(sql_contacts);

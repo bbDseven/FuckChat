@@ -47,11 +47,16 @@
 
         <activity android:name=".activity.ChatActivity" />
 
+        <!--会话数据库内容提供者-->
         <provider
             android:name=".contentprovider.ChatProvider"
             android:authorities="com.threeman.fuckchat" />
+        <!--朋友圈内容提供者-->
+        <provider
+            android:name=".contentprovider.FriendsProvider"
+            android:authorities="com.threeman.fuckchat.friends" />
 
-        <activity android:name=".activity.HandleNewFriendsActivity"></activity>
+        <activity android:name=".activity.HandleNewFriendsActivity" />
     </application>
 
 </manifest>

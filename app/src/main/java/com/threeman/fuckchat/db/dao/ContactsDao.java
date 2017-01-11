@@ -9,6 +9,7 @@ import com.threeman.fuckchat.bean.Contacts;
 import com.threeman.fuckchat.bean.User;
 import com.threeman.fuckchat.db.SQLOpenHelper;
 import com.threeman.fuckchat.globle.AppConfig;
+import com.threeman.fuckchat.globle.ContactsState;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -66,6 +67,27 @@ public class ContactsDao {
            contacts.setContactsState(cursor.getString(cursor.getColumnIndex("contactsState")));
            list.add(contacts);
        }
+        db.close();
+        return list;
+    }
+
+
+    /**
+     * 查询所有联系人（好友）
+     * @param username  用户名
+     * @return  list
+     */
+    public List<Contacts> queryAllAcceptContacts(String username){
+        ArrayList<Contacts> list = new ArrayList<>();
+        SQLiteDatabase db = helper.getWritableDatabase();
+        Cursor cursor = db.query(AppConfig.TABLE_CONTACTS_NAME + username, null, "contactsState=?",
+                new String[]{ContactsState.CONTACTS_HAVED_ACCEPT}, null, null, null);
+        while (cursor.moveToNext()){
+            Contacts contacts = new Contacts();
+            contacts.setUsername(cursor.getString(cursor.getColumnIndex("username")));
+            contacts.setContactsState(cursor.getString(cursor.getColumnIndex("contactsState")));
+            list.add(contacts);
+        }
         db.close();
         return list;
     }

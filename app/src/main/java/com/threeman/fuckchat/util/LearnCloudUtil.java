@@ -8,6 +8,7 @@ import com.avos.avoscloud.AVObject;
 import com.avos.avoscloud.AVQuery;
 import com.avos.avoscloud.FindCallback;
 import com.avos.avoscloud.SaveCallback;
+import com.threeman.fuckchat.bean.FriendsCircle;
 import com.threeman.fuckchat.bean.User;
 import com.threeman.fuckchat.callback.LCQueryEquals;
 
@@ -83,4 +84,57 @@ public class LearnCloudUtil {
         }
         return mException[0];
     }
+
+    /**
+     * 保存用户信息
+     * @param friends  朋友圈信息对象
+     * @return  异常AVException
+     */
+    public AVException saveFriendsCircle(FriendsCircle friends){
+        final AVException[] mException = new AVException[1];
+        if (friends!=null){
+            AVObject todoFolder = new AVObject("FriendsCircle");// 构建对象
+            todoFolder.put("username", friends.getUsername());// 设置名称
+            todoFolder.put("content", friends.getContent());
+            todoFolder.put("imgPath", friends.getImagePath());
+            todoFolder.put("date", friends.getDate());
+            todoFolder.saveInBackground(new SaveCallback() {
+                @Override
+                public void done(AVException e) {
+                    mException[0] =e;
+                }
+            });// 保存到服务端
+        }
+        return mException[0];
+    }
+
+
+
+    /**
+     * LearnCloud查询key与values是否相等
+     * @param table  表名
+     * @param Keys  LearnCloud字段
+     * @param Values  字段查询值
+     * @param queryEquals  回调接口
+     */
+    public void queryAllFriends(String table,String username, Object [] Values, final LCQueryEquals queryEquals ){
+        AVQuery<AVObject> query = new AVQuery<>(table);
+        for (int i=0;i<Values.length;i++){
+            query.whereEqualTo(username,Values[i]);
+        }
+        query.findInBackground(new FindCallback<AVObject>() {
+            @Override
+            public void done(List<AVObject> list, AVException e) {
+                if (e!=null){
+                    UIUtil.toastShort(mContext,"出错啦");
+                    Log.e("LearnCloudUtil", "e: "+e.toString());
+                    return;
+                }
+                queryEquals.queryCallBack(list,e);
+            }
+        });
+    }
+
+
+
 }

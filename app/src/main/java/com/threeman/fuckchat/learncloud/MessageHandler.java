@@ -133,7 +133,7 @@ public class MessageHandler extends AVIMTypedMessageHandler<AVIMTypedMessage> {
             contactsDao.add(username, target, ContactsState.CONTACTS_NOT_HANDLE);
         } else {
             for (Contacts cont : contacts) {
-                Log.e(TAG, "name: "+cont.getUsername());
+                Log.e(TAG, "联系人名字name: "+cont.getUsername());
                 Log.e(TAG, "from: "+target);
 
                 //存在于数据库中，且状态为已通过请求验证（1、已经成为联系人的，2、自己发送请求添加，别人同意添加）
@@ -149,6 +149,7 @@ public class MessageHandler extends AVIMTypedMessageHandler<AVIMTypedMessage> {
                 }
                 listUserName.add(cont.getUsername());
             }
+            Log.e(TAG, " for .... IS_NEW_FRIEND: " + IS_NEW_FRIEND);
 
             //比较查询该数据库中没有该用户
             if(!listUserName.contains(target)){
@@ -156,11 +157,9 @@ public class MessageHandler extends AVIMTypedMessageHandler<AVIMTypedMessage> {
                 IS_NEW_FRIEND = true;
                 contactsDao.add(username, target, ContactsState.CONTACTS_NOT_HANDLE);
                 Log.e(TAG, "我不等于,我要添加数据库 ");
-            }else {
-                IS_NEW_FRIEND = true;
             }
 
-
+            Log.e(TAG, " if .... IS_NEW_FRIEND: " + IS_NEW_FRIEND);
         }
     }
 

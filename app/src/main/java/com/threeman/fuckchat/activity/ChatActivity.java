@@ -96,11 +96,12 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener {
         Intent intent = getIntent();
         username = intent.getStringExtra("username");
         target = intent.getStringExtra("target");
-        viewHolder.chat_tv_name.setText("当前用户是：" + username + "  向:" + target + " 发信息");
+//        viewHolder.chat_tv_name.setText("当前用户是：" + username + "  向:" + target + " 发信息");
+        viewHolder.chat_tv_name.setText(target);
 
         //查询与target的左右会话
         chatDao = new ChatDao(ChatActivity.this);
-        chats = chatDao.queryAll(username, target);
+        chats = chatDao.querySingleAll(username, target);
         Log.e(TAG, "大小1  : " + chats.size());
 
         //展示会话信息
@@ -168,7 +169,10 @@ public class ChatActivity extends BaseActivity implements View.OnClickListener {
             super.onChange(selfChange);
             //更新数据
             chatDao = new ChatDao(ChatActivity.this);
-            chats = chatDao.queryAll(username, target);
+            if (chats.size()>0){
+                chats.clear();
+            }
+            chats = chatDao.querySingleAll(username, target);
             //刷新UI
             myAdapter.notifyDataSetChanged();
             viewHolder.rv_chat_target.smoothScrollToPosition(chats.size());

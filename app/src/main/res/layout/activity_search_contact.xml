@@ -3,7 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#FFEAEEF2"
-    android:orientation="vertical" >
+    android:orientation="vertical">
 
     <include layout="@layout/bar_search" />
 
@@ -13,7 +13,7 @@
         android:layout_height="48dp"
         android:background="@drawable/btn_item_selector"
         android:clickable="true"
-        android:focusable="true" >
+        android:focusable="true">
 
         <ImageView
             android:layout_width="32dp"
@@ -27,7 +27,7 @@
             android:layout_height="match_parent"
             android:layout_marginLeft="60dp"
             android:gravity="center_vertical"
-            android:orientation="horizontal" >
+            android:orientation="horizontal">
 
             <TextView
                 android:layout_width="wrap_content"
@@ -46,11 +46,25 @@
         </LinearLayout>
     </RelativeLayout>
 
-  <ListView
-      android:id="@+id/lv_contacts"
-      android:layout_width="match_parent"
-      android:layout_height="match_parent">
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
 
-  </ListView>
+        <ListView
+            android:id="@+id/lv_contacts"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"/>
+
+            <TextView
+                android:id="@+id/tv_search_tip"
+                android:textColor="#C6C6C6"
+                android:visibility="gone"
+                android:gravity="center"
+                android:textSize="18sp"
+                android:text="没有搜到该联系人喔。。。"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
+
+    </RelativeLayout>
 
 </LinearLayout>

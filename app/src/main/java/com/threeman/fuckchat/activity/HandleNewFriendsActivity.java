@@ -131,24 +131,31 @@ public class HandleNewFriendsActivity extends BaseActivity implements TitleBackV
                 holder.item_handle_friends_action.setText("已发送");
                 holder.item_handle_friends_action.setBackgroundColor(Color.parseColor("#C6C6C6"));
             } else {
-                holder.item_handle_friends_action.setText("已忽略");
-                holder.item_handle_friends_action.setBackgroundColor(Color.parseColor("#C6C6C6"));
+                //忽略掉，再次进入后也可以接受
+                holder.item_handle_friends_action.setText("接受");
+                holder.item_handle_friends_action.setBackgroundColor(Color.parseColor("#01D9AE"));
             }
 
             holder.item_handle_friends_action.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    String dbContactsState = contactses.get(position).getContactsState();
                     if (position == RecyclerView.NO_POSITION) {
                         UIUtil.toastShort(HandleNewFriendsActivity.this, "你的操作有误，请从新选择");
                         return;
-                    } else if (contactses.get(position).getContactsState().
-                            equals(ContactsState.CONTACTS_NOT_HANDLE)) {
-                        UIUtil.toastShort(HandleNewFriendsActivity.this, HandleNewFriendsActivity.this.username + "已成为好友，赶快去聊天吧");
-                        //更新为已接受
-                        contactsDao.updateContacts(username, target_name, ContactsState.CONTACTS_HAVED_ACCEPT);
+                    } else if (dbContactsState.equals(ContactsState.CONTACTS_NOT_HANDLE) ||
+                            dbContactsState.equals(ContactsState.CONTACTS_HAVED_READ)) {
+
+                        UIUtil.toastShort(HandleNewFriendsActivity.this,
+                                HandleNewFriendsActivity.this.username + "已成为好友，赶快去聊天吧");
 
                         //后续用LeanCloud可以不再发信息，直接在服务器为target_name添加一个好友
                         getConversationAndSendMsg(target_name);
+
+                        //更新状态为已接受
+                        contactsDao.updateContacts(username, target_name,
+                                ContactsState.CONTACTS_HAVED_ACCEPT);
+
                         holder.item_handle_friends_action.setText("已接受");
                         holder.item_handle_friends_action.setBackgroundColor(Color.parseColor("#C6C6C6"));
                     }
@@ -175,24 +182,35 @@ public class HandleNewFriendsActivity extends BaseActivity implements TitleBackV
         }
     }
 
-
-    //返回按钮
-    @Override
-    public void Back() {
+    /**
+     * 处理返回后的逻辑
+     */
+    public void HandleBack(){
         //如果还有联系人的状态为未处理的设置为已忽略
         contactses.clear();
         //重新查询联系人状态
         contactses = contactsDao.queryAllContacts(username);
         for (Contacts con : contactses) {
             if (con.getContactsState().equals(ContactsState.CONTACTS_NOT_HANDLE)) {
+                //更新准状态为已浏览
                 contactsDao.updateContacts(username, con.getUsername(),
                         ContactsState.CONTACTS_HAVED_READ);
             }
         }
         finish();
-
     }
 
+
+    //返回按钮
+    @Override
+    public void Back() {
+        HandleBack();
+    }
+
+    @Override
+    public void onBackPressed() {
+        HandleBack();
+    }
 
     /**
      * 给会话容器赋值
@@ -264,6 +282,14 @@ public class HandleNewFriendsActivity extends BaseActivity implements TitleBackV
                 }
             });
 
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (imConversation!=null){
+            NotificationUtils.removeTag(imConversation.getConversationId());
         }
     }
 }

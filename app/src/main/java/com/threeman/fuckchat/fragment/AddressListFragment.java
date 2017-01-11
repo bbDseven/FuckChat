@@ -45,59 +45,66 @@ public class AddressListFragment extends Fragment {
     private View addressView;
     private MyAdapter adapter;
     private RecyclerView rv_contacts;
-    private ArrayList<User> users;
+//    private ArrayList<User> users;
     private ContactsDao contactsDao;
     private MainActivity mMainActivity;
     private String username;
     private int new_friend_sum = 0;
+    private TextView tv_contacts_tip;
     private List<Contacts> listContacts;
 
 
-    private Handler handler = new Handler() {
-        @Override
-        public void handleMessage(Message msg) {
-            switch (msg.what) {
-                case QUERY_ALL_USER:
-                    User user = new User();
-                    user.setUsername("新朋友");
-                    users.add(0, user);
-                    adapter = new MyAdapter();
-                    rv_contacts.setAdapter(adapter);
-                    break;
-                default:
-                    break;
-            }
-        }
-    };
+//    private Handler handler = new Handler() {
+//        @Override
+//        public void handleMessage(Message msg) {
+//            switch (msg.what) {
+//                case QUERY_ALL_USER:
+//                    User user = new User();
+//                    user.setUsername("新朋友");
+//                    users.add(0, user);
+//                    adapter = new MyAdapter();
+//                    rv_contacts.setAdapter(adapter);
+//                    break;
+//                default:
+//                    break;
+//            }
+//        }
+//    };
 
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         addressView = inflater.inflate(R.layout.fragment_address, container, false);
+
+        listContacts=new ArrayList<>();
+
         initView(addressView);
         return addressView;
     }
 
     @Override
     public void onResume() {
+        listContacts.clear();
+        new_friend_sum=0;
         initData();
         super.onResume();
     }
 
     private void initView(View view) {
         rv_contacts = (RecyclerView) view.findViewById(R.id.rv_contacts);
+        tv_contacts_tip = (TextView) view.findViewById(R.id.tv_contacts_tip);
     }
 
     private void initData() {
         rv_contacts.setLayoutManager(new LinearLayoutManager(getContext()));
-        QueryAllUser();
-        listContacts=new ArrayList<>();
+//        QueryAllUser();
         contactsDao = new ContactsDao(getContext());
         mMainActivity = (MainActivity) getActivity();
         username = mMainActivity.getUsername();
-        listContacts.clear();
-        listContacts = contactsDao.queryAllContacts(username);
+
+        listContacts = contactsDao.queryAllAcceptContacts(username);
+        Log.e(TAG, "listContacts大小: "+listContacts.size());
         for (Contacts con : listContacts) {
             if (con.getContactsState().equals(ContactsState.CONTACTS_NOT_HANDLE)) {
                 is_have_new_friend = true;
@@ -106,35 +113,46 @@ public class AddressListFragment extends Fragment {
                 is_have_new_friend = false;
             }
         }
+        //显示新朋友提示
+        Contacts contacts = new Contacts();
+        contacts.setUsername("我的新朋友");
+        listContacts.add(0,contacts );
+        if (listContacts.size()<=1){
+            tv_contacts_tip.setVisibility(View.VISIBLE);
+        }else {
+            tv_contacts_tip.setVisibility(View.GONE);
+        }
+        adapter = new MyAdapter();
+        rv_contacts.setAdapter(adapter);
     }
 
-    /**
-     * 查询所有用户
-     */
-    public void QueryAllUser() {
-        users = new ArrayList<>();
-        AVQuery<AVObject> query = new AVQuery<>("user_info");
-        query.findInBackground(new FindCallback<AVObject>() {
-            @Override
-            public void done(List<AVObject> list, AVException e) {
-                if (e != null) {
-                    Log.e(TAG, "出错了: ");
-                    return;
-                }
-                for (AVObject ob : list) {
-                    User user = new User();
-                    user.setUsername(ob.getString("username"));
-                    user.setNickname(ob.getString("nickname"));
-                    user.setPassword(ob.getString("password"));
-                    user.setNetPath(ob.getString("netPath"));
-                    user.setLocalPath(ob.getString("localPath"));
-                    users.add(user);
-                }
-                handler.sendEmptyMessage(QUERY_ALL_USER);
-
-            }
-        });
-    }
+//    /**
+//     * 查询所有用户
+//     */
+//    public void QueryAllUser() {
+//        users = new ArrayList<>();
+//        AVQuery<AVObject> query = new AVQuery<>("user_info");
+//        query.findInBackground(new FindCallback<AVObject>() {
+//            @Override
+//            public void done(List<AVObject> list, AVException e) {
+//                if (e != null) {
+//                    Log.e(TAG, "出错了: ");
+//                    return;
+//                }
+//                for (AVObject ob : list) {
+//                    User user = new User();
+//                    user.setUsername(ob.getString("username"));
+//                    user.setNickname(ob.getString("nickname"));
+//                    user.setPassword(ob.getString("password"));
+//                    user.setNetPath(ob.getString("netPath"));
+//                    user.setLocalPath(ob.getString("localPath"));
+//                    users.add(user);
+//                }
+//                handler.sendEmptyMessage(QUERY_ALL_USER);
+//
+//            }
+//        });
+//    }
 
 
     /**
@@ -159,10 +177,10 @@ public class AddressListFragment extends Fragment {
                     holder.item_contacts_name.setTextSize(20);
                     holder.item_contacts_name.setTextColor(Color.parseColor("#FF0000"));
                 } else {
-                    holder.item_contacts_name.setText(users.get(position).getUsername());
+                    holder.item_contacts_name.setText(listContacts.get(position).getUsername());
                 }
             } else {
-                holder.item_contacts_name.setText(users.get(position).getUsername());
+                holder.item_contacts_name.setText(listContacts.get(position).getUsername());
             }
         }
 
@@ -177,7 +195,7 @@ public class AddressListFragment extends Fragment {
 
         @Override
         public int getItemCount() {
-            return users.size();
+            return listContacts.size();
         }
 
         public class MyViewHolder extends RecyclerView.ViewHolder {
@@ -201,7 +219,8 @@ public class AddressListFragment extends Fragment {
                                 intent.putExtra("username", username);
                                 getContext().startActivity(intent);
                             } else {
-                                //进入聊天界面
+                                //进入显示联系人详细信息页面
+                                UIUtil.toastShort(getContext(),"显示联系人详细信息页面");
                             }
                         }
                     }

@@ -108,7 +108,9 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
                 startActivity(intent);
                 break;
             case 2:  //发朋友圈
-                startActivity(new Intent(this, AddFriendsActivity.class));
+                Intent friendsIntent = new Intent(this, AddFriendsActivity.class);
+                friendsIntent.putExtra("username",username);
+                startActivity(friendsIntent);
                 break;
             default:
                 break;
