@@ -80,7 +80,7 @@ public class RegisterActivity extends BaseActivity implements TitleBackView.OnBa
                 }else if(password.isEmpty()){
                     UIUtil.toastShort(this,"密码不能为空");
                     return;
-                }else if(password.length()<6&&password.length()>16){
+                }else if(password.length()<6  || password.length()>16){
                     UIUtil.toastShort(this,"密码长度应为6到16位");
                     return;
                 }else {

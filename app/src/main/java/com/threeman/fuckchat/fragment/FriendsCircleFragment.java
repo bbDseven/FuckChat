@@ -3,11 +3,13 @@ package com.threeman.fuckchat.fragment;
 import android.content.ContentResolver;
 import android.content.Intent;
 import android.database.ContentObserver;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -40,7 +42,7 @@ import java.util.List;
  * 朋友圈界面
  * Created by cjz on 2017/1/6 0006.
  */
-public class FriendsCircleFragment extends Fragment {
+public class FriendsCircleFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener {
 
     private final static int TYPE_TOP = 0;  //图片布局
     private final static int TYPE_ITEM = 1;  //朋友圈信息
@@ -48,6 +50,7 @@ public class FriendsCircleFragment extends Fragment {
     final Uri uri = Uri.parse("content://com.threeman.fuckchat.friends");  //内容提供者URI
     private View FriendsCircleView;
     private RecyclerView rv_myFriend;
+    private SwipeRefreshLayout srl_friends;
     private MainActivity mMainActivity;
     private String username;
     private List<FriendsCircle> listFriends;
@@ -58,30 +61,26 @@ public class FriendsCircleFragment extends Fragment {
     private String local_date;  //本地朋友圈中，更新到最新的时间
 
 
-
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         FriendsCircleView = inflater.inflate(R.layout.fragment_friendscircle, container, false);
-
         initView(FriendsCircleView);
-        initEvent();
+        initData();
+
         return FriendsCircleView;
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        initData();
     }
 
     private void initView(View view) {
         rv_myFriend = (RecyclerView) view.findViewById(R.id.rv_myFriend);
+        srl_friends = (SwipeRefreshLayout) view.findViewById(R.id.srl_friends);
     }
 
-
-    private void initEvent() {
-    }
 
     private void initData() {
         mMainActivity = (MainActivity) getActivity();
@@ -93,24 +92,25 @@ public class FriendsCircleFragment extends Fragment {
         ContentResolver resolver = getContext().getContentResolver();
         resolver.registerContentObserver(uri, true, new MyContentObserver(new Handler()));
 
+        //设置下拉刷新
+        SwipeRefresh();
 
-        //查询出所有联系人
+//        //查询出所有联系人
         listContacts = contactsDao.queryAllAcceptContacts(username);
-
-        //查询所有朋友圈
+        for (Contacts con : listContacts) {
+//            query.whereEqualTo("username", con.getUsername());
+            Log.e(TAG, "username: "+username);
+        }
+//
+//        //查询所有朋友圈
         listFriends = friendsDao.queryAll(username);
-        for (FriendsCircle fir :
-                listFriends) {
-            Log.e(TAG, "日期: "+fir.getDate());
-        }
-        if (listFriends.size()>0){
-            local_date = listFriends.get(listFriends.size()-1).getDate();
-            QueryAllFriends(local_date);
-        }else {
-            QueryAllFriends("2000-12-28 00:00:00");
-        }
-
-
+//
+//        if (listFriends.size() > 0) {
+//            local_date = listFriends.get(listFriends.size() - 1).getDate();
+//            QueryAllFriends(local_date);
+//        } else {
+//            QueryAllFriends("2000-12-28 00:00:00");
+//        }
 
 
         //假数据，头部布局占位置
@@ -122,33 +122,68 @@ public class FriendsCircleFragment extends Fragment {
         rv_myFriend.setAdapter(myAdapter);
     }
 
+    public void SwipeRefresh() {
+        //设置下拉监听，当用户下拉刷新的时候会去执行回调
+        srl_friends.setOnRefreshListener(this);
+        //设置刷新进度条的颜色，最多可以设置四种
+        srl_friends.setColorSchemeColors(Color.BLUE, Color.GRAY,
+                Color.GREEN, Color.RED);
+        //设置进度条大小DEFAULT、DEFAULT两种可选择
+        srl_friends.setSize(SwipeRefreshLayout.DEFAULT);
+        // 设置手指在屏幕下拉多少距离会触发下拉刷新，没有设置就为默认值
+        srl_friends.setDistanceToTriggerSync(400);
+
+    }
+
+    @Override
+    public void onRefresh() {
+
+//        listContacts.clear();
+        //查询出所有联系人
+        listContacts = contactsDao.queryAllAcceptContacts(username);
+
+        //查询所有朋友圈
+        listFriends = friendsDao.queryAll(username);
+
+        if (listFriends.size() > 0) {
+            local_date = listFriends.get(listFriends.size() - 1).getDate();
+            QueryAllFriends(local_date);
+        } else {
+            QueryAllFriends("1995-12-28 00:00:00");
+        }
+
+        //假数据，头部布局占位置
+        listFriends.add(0, new FriendsCircle());
+    }
+
     public void QueryAllFriends(String local_date) {
         AVQuery<AVObject> query = new AVQuery<>("FriendsCircle");
         query.whereEqualTo("username", username);
         for (Contacts con : listContacts) {
             query.whereEqualTo("username", con.getUsername());
-            Log.e(TAG, "con.getUsername(): "+con.getUsername());
+            Log.e(TAG, "username: "+username);
         }
-        Log.e(TAG, "local_date: "+local_date);
-        query.whereGreaterThan("date",local_date);
+        Log.e(TAG, "local_date: " + local_date);
+        query.whereGreaterThan("date", local_date);
         query.findInBackground(new FindCallback<AVObject>() {
             @Override
             public void done(List<AVObject> list, AVException e) {
+                srl_friends.setRefreshing(false);
                 if (e != null) {
                     UIUtil.toastShort(getContext(), "出错啦");
-                    Log.e(TAG, "出错啦: "+e.toString());
+                    Log.e(TAG, "出错啦: " + e.toString());
                 } else {
                     Log.e(TAG, "list新朋友圈大小: " + list.size());
-                    for (int i = 0; i < list.size(); i++) {
-//                        String username = list.get(list.size() - i - 1).getString("username");
-//                        String content = list.get(list.size() - i - 1).getString("content");
-//                        String imagePath = list.get(list.size() - i - 1).getString("imagePath");
-//                        String date = list.get(list.size() - i - 1).getString("date");
-                        String username = list.get(i).getString("username");
-                        String content = list.get(i).getString("content");
-                        String imagePath = list.get(i).getString("imagePath");
-                        String date = list.get(i).getString("date");
-                        friendsDao.add(username, content, imagePath, date);
+                    if (list.size()>0){
+                        for (int i = 0; i < list.size(); i++) {
+                            String username = list.get(i).getString("username");
+                            String content = list.get(i).getString("content");
+                            String imagePath = list.get(i).getString("imagePath");
+                            String date = list.get(i).getString("date");
+                            friendsDao.add(username, content, imagePath, date);
+                        }
+                    }else {
+                        UIUtil.toastShort(getContext(), "没有更多数据");
                     }
                 }
             }
@@ -201,8 +236,8 @@ public class FriendsCircleFragment extends Fragment {
         public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
             if (getItemViewType(position) == TYPE_ITEM) {
                 MyViewHolderTwo holderTwo = (MyViewHolderTwo) holder;
-                holderTwo.item_friends_name.setText(listFriends.get(listFriends.size()-position).getUsername());
-                holderTwo.item_friends_content.setText(listFriends.get(listFriends.size()-position).getContent());
+                holderTwo.item_friends_name.setText(listFriends.get(listFriends.size() - position).getUsername());
+                holderTwo.item_friends_content.setText(listFriends.get(listFriends.size() - position).getContent());
             } else if (getItemViewType(position) == TYPE_TOP) {
                 MyViewHolderOne holderOne = (MyViewHolderOne) holder;
                 holderOne.ib_myFriend_head.setOnClickListener(new View.OnClickListener() {

@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.text.TextUtils;
 import android.util.Log;
 
+import com.threeman.fuckchat.MyApplication;
 import com.threeman.fuckchat.activity.ChatActivity;
 import com.threeman.fuckchat.activity.HandleNewFriendsActivity;
 import com.threeman.fuckchat.activity.LoginActivity;
@@ -39,6 +40,7 @@ public class NotificationBroadcastReceiver extends BroadcastReceiver {
             username = (String) SharedPreferencesUtils.getParam(context, "username", "");
 
             if (IS_NEW_FRIEND) {
+                finishAll();
                 UIUtil.toastShort(context, "跳转到是否接受该好友请求");
                 Intent newFriendIntent = new Intent(context, HandleNewFriendsActivity.class);
                 newFriendIntent.putExtra("username", username);
@@ -56,21 +58,9 @@ public class NotificationBroadcastReceiver extends BroadcastReceiver {
      * @param context
      */
     private void gotoLoginActivity(Context context) {
+        finishAll();
         Intent startActivityIntent = new Intent(context, LoginActivity.class);
         startActivityIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        context.startActivity(startActivityIntent);
-    }
-
-    /**
-     * 跳转至广场页面
-     *
-     * @param context
-     * @param intent
-     */
-    private void gotoSquareActivity(Context context, Intent intent) {
-        Intent startActivityIntent = new Intent(context, MainActivity.class);
-        startActivityIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
-        startActivityIntent.putExtra(Constants.CONVERSATION_ID, intent.getStringExtra(Constants.CONVERSATION_ID));
         context.startActivity(startActivityIntent);
     }
 
@@ -81,6 +71,7 @@ public class NotificationBroadcastReceiver extends BroadcastReceiver {
      * @param intent  intent
      */
     private void gotoSingleChatActivity(Context context, Intent intent) {
+        finishAll();
         String target = (String) SharedPreferencesUtils.getParam(context, "target", "");
         Intent startActivityIntent = new Intent(context, ChatActivity.class);
         startActivityIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -90,5 +81,13 @@ public class NotificationBroadcastReceiver extends BroadcastReceiver {
         Log.e(TAG, "target: " + target);
         startActivityIntent.putExtra(Constants.MEMBER_ID, intent.getStringExtra(Constants.MEMBER_ID));
         context.startActivity(startActivityIntent);
+    }
+
+    /**
+     * 关闭掉之前的所有Activity
+     */
+    public void finishAll(){
+        MyApplication myApplication = new MyApplication();
+        myApplication.finishAllActivity();
     }
 }

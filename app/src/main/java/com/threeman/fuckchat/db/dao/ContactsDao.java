@@ -53,7 +53,7 @@ public class ContactsDao {
     }
 
     /**
-     * 查询所有联系人（好友）
+     * 查询所有联系人（包括发送过请求和别人发送过加好友请求）
      * @param username  用户名
      * @return  list
      */
@@ -90,6 +90,17 @@ public class ContactsDao {
         }
         db.close();
         return list;
+    }
+
+    public boolean queryContacts(String username,String contacts){
+        boolean is_have=false;
+        SQLiteDatabase db = helper.getWritableDatabase();
+        Cursor cursor = db.query(AppConfig.TABLE_CONTACTS_NAME + username, null, "username=?",
+                new String[]{contacts}, null, null, null);
+        while (cursor.moveToNext()){
+            is_have=true;
+        }
+        return is_have;
     }
 
     /**

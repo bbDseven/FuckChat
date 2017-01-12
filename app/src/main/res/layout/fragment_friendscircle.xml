@@ -3,6 +3,12 @@
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
+    <android.support.v4.widget.SwipeRefreshLayout
+        android:id="@+id/srl_friends"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" >
+
+
     <android.support.v7.widget.RecyclerView
         android:layout_below="@id/tv_myFriend"
         android:id="@+id/rv_myFriend"
@@ -11,5 +17,9 @@
 
 
     </android.support.v7.widget.RecyclerView>
+
+    </android.support.v4.widget.SwipeRefreshLayout>
+
+
 
 </LinearLayout>

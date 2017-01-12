@@ -32,6 +32,7 @@ import com.avos.avoscloud.im.v2.callback.AVIMConversationQueryCallback;
 import com.avos.avoscloud.im.v2.messages.AVIMTextMessage;
 import com.threeman.fuckchat.R;
 import com.threeman.fuckchat.base.BaseActivity;
+import com.threeman.fuckchat.bean.Contacts;
 import com.threeman.fuckchat.bean.User;
 import com.threeman.fuckchat.db.dao.ContactsDao;
 import com.threeman.fuckchat.globle.ContactsState;
@@ -138,6 +139,8 @@ public class SearchContactsActivity extends BaseActivity implements View.OnClick
         Button dialog_btn_ok = (Button) dialogView.findViewById(R.id.dialog_btn_ok);
         builder.setView(dialogView);
         final AlertDialog alertDialog = builder.create();
+        alertDialog.setCanceledOnTouchOutside(false);
+        alertDialog.setCancelable(false);
         alertDialog.show();
 
         dialog_btn_cannal.setOnClickListener(new View.OnClickListener() {
@@ -151,11 +154,16 @@ public class SearchContactsActivity extends BaseActivity implements View.OnClick
             public void onClick(View v) {
                 String content = dialog_et_content.getText().toString().trim();
                 UIUtil.toastShort(SearchContactsActivity.this, content);
+                Log.e(TAG, "到这里了: ");
                 //发送信息
                 sendMessage(content);
                 //把该联系人添加到用户表中去，标记为已发送请求
                 contactsDao = new ContactsDao(SearchContactsActivity.this);
-                contactsDao.add(username,target_name, ContactsState.CONTACTS_HAVE_SEND);
+                boolean is_have = contactsDao.queryContacts(username, target_name);
+                Log.e(TAG, "is_have: "+is_have);
+                if (!is_have){
+                    contactsDao.add(username,target_name, ContactsState.CONTACTS_HAVE_SEND);
+                }
                 alertDialog.dismiss();
             }
         });
