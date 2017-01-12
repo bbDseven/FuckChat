@@ -54,24 +54,6 @@ public class AddressListFragment extends Fragment {
     private List<Contacts> listContacts;
 
 
-//    private Handler handler = new Handler() {
-//        @Override
-//        public void handleMessage(Message msg) {
-//            switch (msg.what) {
-//                case QUERY_ALL_USER:
-//                    User user = new User();
-//                    user.setUsername("新朋友");
-//                    users.add(0, user);
-//                    adapter = new MyAdapter();
-//                    rv_contacts.setAdapter(adapter);
-//                    break;
-//                default:
-//                    break;
-//            }
-//        }
-//    };
-
-
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -106,6 +88,7 @@ public class AddressListFragment extends Fragment {
         listContacts = contactsDao.queryAllAcceptContacts(username);
         Log.e(TAG, "listContacts大小: "+listContacts.size());
         for (Contacts con : listContacts) {
+            Log.e(TAG, "con.getContactsState(): "+con.getContactsState());
             if (con.getContactsState().equals(ContactsState.CONTACTS_NOT_HANDLE)) {
                 is_have_new_friend = true;
                 new_friend_sum++;

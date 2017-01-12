@@ -96,11 +96,11 @@ public class FriendsCircleFragment extends Fragment implements SwipeRefreshLayou
         SwipeRefresh();
 
 //        //查询出所有联系人
-        listContacts = contactsDao.queryAllAcceptContacts(username);
-        for (Contacts con : listContacts) {
-//            query.whereEqualTo("username", con.getUsername());
-            Log.e(TAG, "username: "+username);
-        }
+//        listContacts = contactsDao.queryAllAcceptContacts(username);
+//        for (Contacts con : listContacts) {
+////            query.whereEqualTo("username", con.getUsername());
+//            Log.e(TAG, "username: "+username);
+//        }
 //
 //        //查询所有朋友圈
         listFriends = friendsDao.queryAll(username);

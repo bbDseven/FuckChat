@@ -115,6 +115,7 @@ public class MessageHandler extends AVIMTypedMessageHandler<AVIMTypedMessage> {
                 if (cont.getUsername().equals(target) &&
                         cont.getContactsState().equals(ContactsState.CONTACTS_HAVE_SEND)) {
                     int size = contactsDao.updateContacts(username, target, ContactsState.CONTACTS_HAVED_ACCEPT);
+
                     Log.e(TAG, "接受了,受影响行数: "+size);
                 }
             }
@@ -143,8 +144,9 @@ public class MessageHandler extends AVIMTypedMessageHandler<AVIMTypedMessage> {
                     Log.e(TAG, "我等于: ");
                 } else if(cont.getUsername().equals(target) && !cont.getContactsState().
                         equals(ContactsState.CONTACTS_HAVED_ACCEPT)) {
-                    //已经创建数据库，但还没有成为好友
+                    //已经创建数据库，但还没有成为好友,更新数据库为未处理
                     IS_NEW_FRIEND = true;
+
                     Log.e(TAG, "我不等于,我不添加数据库 ");
                 }
                 listUserName.add(cont.getUsername());
