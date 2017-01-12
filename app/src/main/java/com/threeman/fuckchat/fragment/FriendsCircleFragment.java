@@ -124,6 +124,7 @@ public class FriendsCircleFragment extends Fragment {
 
     public void QueryAllFriends(String local_date) {
         AVQuery<AVObject> query = new AVQuery<>("FriendsCircle");
+        query.whereEqualTo("username", username);
         for (Contacts con : listContacts) {
             query.whereEqualTo("username", con.getUsername());
             Log.e(TAG, "con.getUsername(): "+con.getUsername());
